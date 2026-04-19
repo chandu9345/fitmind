@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitMind AI — Intelligent Fitness System</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   DESIGN TOKENS — LIGHT & DARK
+══════════════════════════════════════ */
+:root {
+  --or:#E8460A;--or2:#FF6B35;--or3:#FF9A6C;--or4:#FFF0E8;--or5:#FFE0CC;
+  --nav-w:230px;
+  --r:14px;--r2:10px;--r3:6px;
+  --sh:0 2px 16px rgba(232,70,10,.10);
+  --sh2:0 8px 32px rgba(232,70,10,.16);
+  --trans:all .32s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="light"] {
+  --bg:#FAF8F6;--bg2:#F3EDE8;--bg3:#EDE5DF;
+  --wh:#FFFFFF;--bd:#E8DDD6;--bd2:#D4C4BA;
+  --tx:#1C0A00;--tx2:#6B4A38;--tx3:#A88070;
+  --nav-bg:#1C0A00;--nav-tx:rgba(255,255,255,.55);--nav-tx-a:#FF9A6C;
+  --card:#FFFFFF;--input-bg:#F3EDE8;
+  --gn:#1A6B3A;--gn2:#EBF7F0;--gn3:#C0E8D0;
+  --bl:#1A4D8A;--bl2:#EBF2FC;--bl3:#C0D8F5;
+  --pu:#5A2D8A;--pu2:#F0EBFC;
+  --topbar:rgba(255,255,255,.96);
+  --sb-bg:#FFFFFF;
+  --toggle-bg:#E8DDD6;
+  --mode-icon:🌙;
+}
+[data-theme="dark"] {
+  --bg:#0F0A08;--bg2:#1A1008;--bg3:#221508;
+  --wh:#1E1208;--bd:#3A2518;--bd2:#4A3020;
+  --tx:#F5EDE5;--tx2:#C0907A;--tx3:#7A5040;
+  --nav-bg:#0A0605;--nav-tx:rgba(255,200,170,.4);--nav-tx-a:#FF9A6C;
+  --card:#1E1208;--input-bg:#2A1808;
+  --gn:#2ECC71;--gn2:#0A2010;--gn3:#1A5030;
+  --bl:#5B8FD4;--bl2:#0A1520;--bl3:#1A3050;
+  --pu:#9B6DD4;--pu2:#160A28;
+  --topbar:rgba(15,10,8,.96);
+  --sb-bg:#1E1208;
+  --toggle-bg:#3A2518;
+  --mode-icon:☀️;
+}
+
+/* ══════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:15px}
+body{background:var(--bg);color:var(--tx);font-family:'Nunito',sans-serif;line-height:1.6;min-height:100vh;display:flex;overflow-x:hidden;transition:background .32s,color .32s}
+img{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer}
+a{text-decoration:none;color:inherit}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--or3);border-radius:10px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+
+/* ══════════════════════════════════════
+   LEFT NAV — COLLAPSIBLE
+══════════════════════════════════════ */
+.leftnav{
+  width:var(--nav-w);flex-shrink:0;
+  background:var(--nav-bg);
+  position:fixed;top:0;left:0;bottom:0;z-index:500;
+  display:flex;flex-direction:column;
+  transition:var(--trans);
+  overflow:hidden;
+  box-shadow:4px 0 24px rgba(0,0,0,.25);
+}
+.leftnav.collapsed{
+  width:0;
+  box-shadow:none;
+}
+.ln-inner{width:var(--nav-w);min-width:var(--nav-w);display:flex;flex-direction:column;height:100%;overflow:hidden}
+.ln-logo{padding:1.5rem 1.3rem 1.1rem;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+.ln-logo-txt{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:3px;color:var(--or);line-height:1}
+.ln-logo-txt b{color:#fff}
+.ln-logo-sub{font-size:.58rem;color:rgba(255,255,255,.3);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;margin-top:.2rem}
+.ln-close-btn{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:transparent;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:1rem;cursor:pointer;transition:var(--trans);flex-shrink:0}
+.ln-close-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.ln-streak{margin:.8rem 1rem .4rem;background:rgba(232,70,10,.18);border:1px solid rgba(232,70,10,.35);border-radius:8px;padding:.45rem .75rem;display:flex;align-items:center;gap:.45rem;font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--or3);font-weight:600;white-space:nowrap}
+.ln-menu{flex:1;overflow-y:auto;padding:.4rem 0}
+.ln-section-label{padding:.55rem 1.3rem .25rem;font-size:.56rem;font-family:'JetBrains Mono',monospace;font-weight:600;color:rgba(255,255,255,.22);letter-spacing:2px;text-transform:uppercase;white-space:nowrap}
+.ln-item{display:flex;align-items:center;gap:.7rem;padding:.58rem 1.3rem;font-size:.8rem;font-weight:600;color:var(--nav-tx);cursor:pointer;transition:var(--trans);border-left:3px solid transparent;white-space:nowrap}
+.ln-item:hover{background:rgba(255,255,255,.055);color:#fff;border-left-color:rgba(232,70,10,.45)}
+.ln-item.active{background:rgba(232,70,10,.14);color:var(--nav-tx-a);border-left-color:var(--or)}
+.ln-icon{font-size:.95rem;width:20px;text-align:center;flex-shrink:0}
+.ln-badge{margin-left:auto;background:var(--or);color:#fff;font-size:.56rem;font-family:'JetBrains Mono',monospace;font-weight:700;padding:.12rem .42rem;border-radius:100px;white-space:nowrap}
+.ln-bottom{padding:.9rem 1rem;border-top:1px solid rgba(255,255,255,.07)}
+.ln-start-btn{width:100%;background:var(--or);color:#fff;border:none;border-radius:8px;padding:.6rem;font-size:.8rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;transition:var(--trans);white-space:nowrap}
+.ln-start-btn:hover{background:var(--or2);transform:scale(1.02)}
+.ln-user{display:flex;align-items:center;gap:.65rem;margin-top:.75rem;padding:.4rem}
+.ln-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.ln-user-name{font-size:.75rem;font-weight:700;color:#fff;white-space:nowrap}
+.ln-user-plan{font-size:.6rem;color:rgba(255,255,255,.32);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+
+/* ══════════════════════════════════════
+   MAIN BODY
+══════════════════════════════════════ */
+.app-body{
+  margin-left:var(--nav-w);
+  margin-right:270px;
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;
+  transition:var(--trans);
+}
+.app-body.nav-collapsed{margin-left:0}
+
+/* ══════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════ */
+.topbar{
+  background:var(--topbar);backdrop-filter:blur(16px);
+  border-bottom:1.5px solid var(--bd);
+  padding:.7rem 1.6rem;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:300;
+  transition:var(--trans);
+}
+.topbar-left{display:flex;align-items:center;gap:.9rem}
+.nav-toggle-btn{
+  width:36px;height:36px;border-radius:9px;
+  border:1.5px solid var(--bd);
+  background:var(--card);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;cursor:pointer;
+  transition:var(--trans);color:var(--tx2);
+}
+.nav-toggle-btn:hover{border-color:var(--or);color:var(--or);background:var(--or4)}
+.topbar-title{font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:2px;color:var(--tx)}
+.topbar-right{display:flex;align-items:center;gap:.7rem}
+.topbar-pill{background:var(--or4);border:1.5px solid var(--or5);border-radius:100px;padding:.28rem .8rem;font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--or);font-weight:600;white-space:nowrap}
+
+/* Dark mode toggle */
+.theme-toggle{
+  display:flex;align-items:center;gap:.5rem;
+  background:var(--toggle-bg);
+  border:1.5px solid var(--bd);
+  border-radius:100px;padding:.3rem .7rem;
+  cursor:pointer;transition:var(--trans);
+  font-size:.72rem;font-weight:700;color:var(--tx2);
+  white-space:nowrap;
+}
+.theme-toggle:hover{border-color:var(--or);color:var(--or)}
+.toggle-track{
+  width:36px;height:20px;background:var(--bd2);border-radius:100px;
+  position:relative;transition:var(--trans);flex-shrink:0;
+}
+[data-theme="dark"] .toggle-track{background:var(--or)}
+.toggle-thumb{
+  position:absolute;top:3px;left:3px;
+  width:14px;height:14px;border-radius:50%;
+  background:#fff;transition:var(--trans);
+  box-shadow:0 1px 4px rgba(0,0,0,.25);
+}
+[data-theme="dark"] .toggle-thumb{left:19px}
+
+/* ══════════════════════════════════════
+   SIDEBAR API KEY SECTION
+══════════════════════════════════════ */
+.ln-api-section{
+  border-top:1px solid rgba(255,255,255,.07);
+  padding:.9rem 1rem .6rem;
+}
+.ln-api-label{
+  font-size:.56rem;font-family:'JetBrains Mono',monospace;font-weight:600;
+  color:rgba(255,255,255,.22);letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:.55rem;white-space:nowrap;
+}
+.ln-api-status-row{
+  display:flex;align-items:center;gap:.45rem;
+  margin-bottom:.55rem;
+}
+.api-status-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);flex-shrink:0}
+.api-status-dot.ok{background:#4ecb71;box-shadow:0 0 8px #4ecb71}
+.ln-api-status-txt{font-size:.65rem;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.45);white-space:nowrap}
+.ln-api-select{
+  width:100%;background:rgba(255,255,255,.08);
+  border:1.5px solid rgba(255,255,255,.15);border-radius:7px;
+  color:rgba(255,255,255,.85);font-family:'Nunito',sans-serif;
+  font-size:.74rem;font-weight:600;padding:.42rem .7rem;
+  outline:none;cursor:pointer;margin-bottom:.42rem;
+  transition:var(--trans);
+}
+.ln-api-select:focus{border-color:var(--or)}
+.api-key-input{
+  width:100%;background:rgba(255,255,255,.08);
+  border:1.5px solid rgba(255,255,255,.15);
+  border-radius:7px;color:rgba(255,255,255,.9);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;padding:.42rem .7rem;outline:none;
+  transition:var(--trans);margin-bottom:.42rem;
+  box-sizing:border-box;
+}
+.api-key-input::placeholder{color:rgba(255,255,255,.3)}
+.api-key-input:focus{background:rgba(255,255,255,.13);border-color:var(--or)}
+.ln-custom-fields{display:none;flex-direction:column;gap:.35rem;margin-bottom:.42rem}
+.ln-custom-input{
+  width:100%;background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.13);border-radius:7px;
+  color:rgba(255,255,255,.8);font-family:'JetBrains Mono',monospace;
+  font-size:.66rem;padding:.38rem .65rem;outline:none;box-sizing:border-box;
+}
+.ln-custom-input:focus{border-color:var(--or)}
+.api-save-btn{
+  width:100%;background:var(--or);color:#fff;border:none;border-radius:7px;
+  padding:.48rem;font-size:.75rem;font-weight:800;
+  letter-spacing:.5px;text-transform:uppercase;
+  transition:var(--trans);cursor:pointer;
+}
+.api-save-btn:hover{background:var(--or2);transform:scale(1.02)}
+.ln-api-note{font-size:.58rem;color:rgba(255,255,255,.2);font-family:'JetBrains Mono',monospace;margin-top:.4rem;line-height:1.4;white-space:normal}
+/* hidden status elements (kept for JS compat) */
+#apiStatus,#apiBanner{display:none!important}
+
+/* ══════════════════════════════════════
+   RIGHT SIDEBAR
+══════════════════════════════════════ */
+.rightsb{
+  width:270px;flex-shrink:0;
+  background:var(--sb-bg);border-left:1.5px solid var(--bd);
+  position:fixed;top:0;right:0;bottom:0;z-index:300;
+  overflow-y:auto;padding:1.3rem .95rem 2rem;
+  display:flex;flex-direction:column;gap:1.4rem;
+  transition:var(--trans);
+}
+.sb-head{display:flex;align-items:center;gap:.4rem;font-family:'Oswald',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:2px;color:var(--or);text-transform:uppercase;margin-bottom:.7rem}
+.cal-ring-wrap{display:flex;align-items:center;gap:.85rem}
+.ring-svg-wrap{position:relative;width:74px;height:74px;flex-shrink:0}
+.ring-svg{transform:rotate(-90deg)}
+.ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;line-height:1}
+.rl-num{font-size:.95rem;font-weight:700;color:var(--or)}
+.rl-sub{font-size:.48rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;font-family:'Nunito',sans-serif;font-weight:600}
+.cal-macros{flex:1;display:flex;flex-direction:column;gap:.38rem}
+.macro-row{display:flex;align-items:center;gap:.38rem}
+.macro-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.macro-info{flex:1}
+.macro-name{font-size:.6rem;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-family:'JetBrains Mono',monospace}
+.macro-bar-wrap{height:4px;background:var(--bg2);border-radius:10px;overflow:hidden;margin-top:2px}
+.macro-bar{height:100%;border-radius:10px;transition:width 1.2s ease}
+.macro-val{font-size:.6rem;font-family:'JetBrains Mono',monospace;color:var(--tx2);font-weight:600;min-width:25px;text-align:right}
+.water-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.32rem}
+.wcup{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;cursor:pointer;border:1.5px solid var(--bd);background:var(--bg2);transition:var(--trans)}
+.wcup.on{background:var(--bl2);border-color:var(--bl3)}
+.wcup.off{opacity:.3;filter:grayscale(1)}
+.water-status{font-size:.65rem;color:var(--tx2);margin-top:.38rem;font-family:'JetBrains Mono',monospace}
+.diet-scroll{display:flex;flex-direction:column;gap:.55rem}
+.diet-card{background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r2);padding:.6rem;display:flex;gap:.55rem;align-items:flex-start;transition:var(--trans)}
+.diet-card:hover{border-color:var(--or3);background:var(--or4);transform:translateX(3px)}
+[data-theme="dark"] .diet-card:hover{background:rgba(232,70,10,.1)}
+.diet-em{width:36px;height:36px;flex-shrink:0;border-radius:9px;background:var(--card);border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.diet-txt h4{font-size:.72rem;font-weight:700;color:var(--tx);margin-bottom:.08rem}
+.diet-txt p{font-size:.63rem;color:var(--tx2);line-height:1.35;margin-bottom:.28rem}
+.pill-row{display:flex;flex-wrap:wrap;gap:.22rem}
+.pill{font-size:.56rem;font-family:'JetBrains Mono',monospace;font-weight:600;padding:.1rem .42rem;border-radius:100px;border:1px solid;white-space:nowrap}
+.pill-or{background:var(--or4);color:var(--or);border-color:var(--or5)}
+.pill-gn{background:var(--gn2);color:var(--gn);border-color:var(--gn3)}
+.pill-bl{background:var(--bl2);color:var(--bl);border-color:var(--bl3)}
+.pill-pu{background:var(--pu2);color:var(--pu);border-color:#d8c8f0}
+[data-theme="dark"] .pill-pu{border-color:#4A2060}
+.timing-list{display:flex;flex-direction:column;gap:.38rem}
+.timing-row{display:flex;justify-content:space-between;align-items:center;padding:.42rem .65rem;border-radius:6px;font-size:.7rem}
+.timing-row b{font-weight:700;color:var(--tx)}
+.timing-row span{font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:600}
+
+/* ══════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════ */
+.main{flex:1;padding:1.8rem 1.8rem 4rem}
+.sec{margin-bottom:2.2rem}
+.sec-tag{display:inline-block;font-size:.62rem;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--or);background:var(--or4);border:1px solid var(--or5);padding:.17rem .62rem;border-radius:100px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.42rem}
+[data-theme="dark"] .sec-tag{background:rgba(232,70,10,.12);border-color:rgba(232,70,10,.25)}
+.sec-h{font-family:'Oswald',sans-serif;font-size:1.65rem;font-weight:700;letter-spacing:2px;color:var(--tx);margin-bottom:.28rem}
+.sec-sub{font-size:.83rem;color:var(--tx2);line-height:1.6;max-width:600px}
+
+/* hero */
+.hero{border-radius:18px;overflow:hidden;background:var(--card);border:1.5px solid var(--bd);display:grid;grid-template-columns:1fr 155px;margin-bottom:1.8rem;box-shadow:var(--sh2)}
+.hero-left{padding:1.7rem 1.7rem 1.5rem;background:linear-gradient(130deg,var(--or) 0%,var(--or2) 55%,#FF9A5A 100%);position:relative;overflow:hidden}
+.hero-left::before{content:'';position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.07);right:-65px;top:-65px}
+.hero-badge{display:inline-flex;align-items:center;gap:.32rem;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:100px;padding:.23rem .78rem;font-size:.63rem;font-family:'JetBrains Mono',monospace;color:#fff;letter-spacing:1px;margin-bottom:.7rem}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.4s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-title{font-family:'Oswald',sans-serif;font-size:2.1rem;font-weight:700;letter-spacing:2px;line-height:1;color:#fff;margin-bottom:.48rem}
+.hero-sub{font-size:.82rem;color:rgba(255,255,255,.88);line-height:1.55;max-width:330px;margin-bottom:1.1rem}
+.hero-btns{display:flex;gap:.55rem;flex-wrap:wrap}
+.btn-wh{background:#fff;color:var(--or);font-weight:700;font-size:.76rem;padding:.52rem 1.2rem;border:none;border-radius:6px;letter-spacing:.5px;text-transform:uppercase;transition:var(--trans)}
+.btn-wh:hover{background:var(--or4);transform:translateY(-2px)}
+.btn-ol{background:transparent;color:#fff;font-weight:700;font-size:.76rem;padding:.52rem 1.2rem;border:1.5px solid rgba(255,255,255,.5);border-radius:6px;letter-spacing:.5px;text-transform:uppercase;transition:var(--trans)}
+.btn-ol:hover{border-color:#fff}
+.hero-stats{display:flex;gap:1.5rem;margin-top:1.2rem}
+.hstat{border-left:2px solid rgba(255,255,255,.3);padding-left:.75rem}
+.hstat-n{font-family:'Oswald',sans-serif;font-size:1.55rem;font-weight:700;color:#fff;line-height:1}
+.hstat-l{font-size:.6rem;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.8px}
+.hero-right{background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.1rem .85rem;gap:.75rem}
+.hero-body-img{width:115px;height:140px;object-fit:cover;border-radius:12px;border:2px solid var(--bd)}
+.hero-score-card{background:var(--card);border:1.5px solid var(--bd);border-radius:8px;padding:.5rem .75rem;width:100%;text-align:center}
+.hsc-label{font-size:.58rem;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:.12rem}
+.hsc-val{font-family:'Oswald',sans-serif;font-size:1.15rem;font-weight:700;color:var(--or)}
+
+/* metrics */
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-bottom:1.8rem}
+.mbox{background:var(--card);border:1.5px solid var(--bd);border-radius:12px;padding:.85rem;transition:var(--trans)}
+.mbox:hover{border-color:var(--or3);box-shadow:var(--sh);transform:translateY(-2px)}
+.mbox-icon{width:32px;height:32px;border-radius:8px;background:var(--or4);border:1.5px solid var(--or5);display:flex;align-items:center;justify-content:center;font-size:.95rem;margin-bottom:.5rem}
+[data-theme="dark"] .mbox-icon{background:rgba(232,70,10,.12);border-color:rgba(232,70,10,.22)}
+.mbox-val{font-family:'Oswald',sans-serif;font-size:1.45rem;font-weight:700;color:var(--or);line-height:1}
+.mbox-lbl{font-size:.66rem;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;margin-top:.16rem;font-weight:600}
+.mbox-chg{font-size:.63rem;font-family:'JetBrains Mono',monospace;margin-top:.22rem}
+.chg-up{color:var(--gn)}.chg-dn{color:#E74C3C}
+
+/* progress */
+.prog-card{background:var(--card);border:1.5px solid var(--bd);border-radius:var(--r);padding:1.1rem 1.2rem;margin-bottom:1.8rem}
+.prog-row{margin-bottom:.8rem}.prog-row:last-child{margin-bottom:0}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.28rem}
+.prog-name{font-size:.76rem;font-weight:700;color:var(--tx)}
+.prog-val{font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--or);font-weight:700}
+.prog-track{height:7px;background:var(--bg2);border-radius:100px;overflow:hidden}
+.prog-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--or),var(--or2));transition:width 1.4s ease}
+
+/* calculators */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-bottom:2rem}
+.calc-card{background:var(--card);border:1.5px solid var(--bd);border-radius:var(--r);padding:1.3rem;transition:border-color .2s}
+.calc-card:hover{border-color:var(--or3)}
+.calc-title{font-family:'Oswald',sans-serif;font-size:1.05rem;font-weight:700;letter-spacing:1.5px;color:var(--tx);margin-bottom:.28rem}
+.calc-sub{font-size:.73rem;color:var(--tx2);margin-bottom:1rem;line-height:1.5}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:.6rem}
+.form-group{display:flex;flex-direction:column;gap:.28rem}
+.form-group label{font-size:.65rem;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;font-family:'JetBrains Mono',monospace}
+.form-group input,.form-group select{background:var(--input-bg);border:1.5px solid var(--bd);border-radius:7px;color:var(--tx);font-size:.8rem;padding:.5rem .72rem;outline:none;transition:border-color .2s;width:100%}
+.form-group input:focus,.form-group select:focus{border-color:var(--or)}
+.calc-btn{width:100%;background:var(--or);color:#fff;border:none;border-radius:7px;padding:.58rem;font-size:.8rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-top:.45rem;transition:var(--trans)}
+.calc-btn:hover{background:var(--or2);transform:translateY(-1px);box-shadow:var(--sh)}
+.calc-result{margin-top:.85rem;padding:.85rem;border-radius:9px;background:var(--or4);border:1.5px solid var(--or5);display:none}
+[data-theme="dark"] .calc-result{background:rgba(232,70,10,.1);border-color:rgba(232,70,10,.2)}
+.calc-result.show{display:block}
+.result-main{font-family:'Oswald',sans-serif;font-size:1.75rem;font-weight:700;color:var(--or);line-height:1}
+.result-label{font-size:.68rem;color:var(--tx2);margin-top:.12rem;font-family:'JetBrains Mono',monospace;font-weight:600}
+.result-detail{font-size:.76rem;color:var(--tx2);margin-top:.45rem;line-height:1.5}
+.bmi-scale{display:flex;gap:.28rem;margin-top:.65rem}
+.bmi-bar{flex:1;height:6px;border-radius:3px}
+.bmi-labels{display:flex;justify-content:space-between;font-size:.57rem;font-family:'JetBrains Mono',monospace;color:var(--tx3);margin-top:.18rem}
+
+/* image analysis */
+.imganalysis-card{background:var(--card);border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:2rem}
+.ia-top{background:linear-gradient(130deg,var(--nav-bg) 0%,#3D1F10 100%);padding:1.1rem 1.3rem;display:flex;align-items:center;gap:.85rem}
+[data-theme="dark"] .ia-top{background:linear-gradient(130deg,#0A0605 0%,#2A1008 100%)}
+.ia-icon{width:44px;height:44px;border-radius:12px;background:rgba(232,70,10,.25);border:1.5px solid rgba(232,70,10,.4);display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0}
+.ia-head-text h3{font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1.5px;color:#fff}
+.ia-head-text p{font-size:.7rem;color:rgba(255,255,255,.5)}
+.ia-body{padding:1.3rem}
+.upload-zone{border:2px dashed var(--bd2);border-radius:var(--r);padding:2rem 1rem;text-align:center;cursor:pointer;transition:var(--trans);background:var(--bg);position:relative}
+.upload-zone:hover{border-color:var(--or);background:var(--or4)}
+[data-theme="dark"] .upload-zone:hover{background:rgba(232,70,10,.08)}
+.upload-zone.drag{border-color:var(--or);background:var(--or4)}
+.upload-icon{font-size:2.6rem;margin-bottom:.55rem}
+.upload-text{font-size:.83rem;font-weight:600;color:var(--tx2);margin-bottom:.22rem}
+.upload-sub{font-size:.7rem;color:var(--tx3)}
+.upload-input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ia-preview{display:none;gap:1.1rem;align-items:flex-start}
+.ia-preview.show{display:grid;grid-template-columns:1fr 1fr}
+.ia-img-wrap{position:relative}
+.ia-img-wrap img{width:100%;border-radius:var(--r2);border:1.5px solid var(--bd);aspect-ratio:4/3;object-fit:cover}
+.ia-img-overlay{position:absolute;bottom:.55rem;left:.55rem;background:rgba(28,10,0,.78);border-radius:6px;padding:.28rem .65rem;font-size:.63rem;font-family:'JetBrains Mono',monospace;color:#fff}
+.ia-result-title{font-family:'Oswald',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:1px;color:var(--tx);margin-bottom:.85rem}
+.ia-metric{background:var(--bg);border:1.5px solid var(--bd);border-radius:9px;padding:.7rem .85rem;margin-bottom:.55rem}
+.ia-metric-label{font-size:.62rem;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:.18rem}
+.ia-metric-val{font-family:'Oswald',sans-serif;font-size:1.15rem;font-weight:700;color:var(--or);line-height:1}
+.ia-metric-sub{font-size:.68rem;color:var(--tx2);margin-top:.12rem}
+.ia-suggestions h4{font-size:.68rem;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.55rem;margin-top:.85rem}
+.ia-sug-item{display:flex;gap:.55rem;align-items:flex-start;margin-bottom:.45rem}
+.ia-sug-num{width:19px;height:19px;border-radius:50%;background:var(--or);color:#fff;font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-family:'JetBrains Mono',monospace}
+.ia-sug-text{font-size:.76rem;color:var(--tx2);line-height:1.5}
+.ia-analyze-btn{width:100%;background:linear-gradient(90deg,var(--or),var(--or2));color:#fff;border:none;border-radius:9px;padding:.7rem;font-size:.82rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-top:.95rem;transition:var(--trans);display:none}
+.ia-analyze-btn.show{display:block}
+.ia-analyze-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:var(--sh2)}
+.ia-loading{display:none;text-align:center;padding:1.4rem;color:var(--tx2)}
+.ia-loading.show{display:block}
+.ia-loading-spinner{width:38px;height:38px;border:3px solid var(--or5);border-top-color:var(--or);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto .75rem}
+[data-theme="dark"] .ia-loading-spinner{border-color:rgba(232,70,10,.2);border-top-color:var(--or)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ia-stream-text{font-size:.82rem;color:var(--tx2);line-height:1.7;margin-top:.85rem;padding:.85rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:10px;min-height:80px;white-space:pre-wrap}
+
+/* body grid */
+.body-grid{display:grid;grid-template-columns:1fr 1fr;gap:.95rem}
+.muscle-card{background:var(--card);border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden;transition:var(--trans);cursor:pointer}
+.muscle-card:hover{border-color:var(--or);box-shadow:var(--sh2);transform:translateY(-3px)}
+.mc-img-wrap{height:150px;overflow:hidden;position:relative;background:var(--bg2)}
+.mc-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.muscle-card:hover .mc-img-wrap img{transform:scale(1.05)}
+.mc-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(28,10,0,.65) 0%,transparent 55%);display:flex;align-items:flex-end;padding:.62rem}
+.mc-badge-group{display:flex;gap:.32rem;flex-wrap:wrap}
+.mc-badge{font-size:.58rem;font-family:'JetBrains Mono',monospace;font-weight:700;padding:.16rem .52rem;border-radius:100px;background:var(--or);color:#fff;letter-spacing:.5px;text-transform:uppercase}
+.mc-badge.alt{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff}
+.mc-body{padding:.85rem .95rem .95rem}
+.mc-name{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1.5px;color:var(--tx);margin-bottom:.25rem}
+.mc-desc{font-size:.74rem;color:var(--tx2);line-height:1.55;margin-bottom:.58rem}
+.mc-tags{display:flex;gap:.28rem;flex-wrap:wrap}
+.mc-tag{font-size:.58rem;padding:.13rem .48rem;border-radius:100px;font-family:'JetBrains Mono',monospace;font-weight:600;border:1px solid}
+
+/* exercises */
+.ex-list{display:flex;flex-direction:column;gap:.8rem}
+.ex-card{background:var(--card);border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
+.ex-card.active{border-color:var(--or)}
+.ex-header{display:flex;align-items:center;gap:.75rem;padding:.85rem .95rem;cursor:pointer;transition:background .18s}
+.ex-header:hover{background:var(--bg)}
+.ex-emoji{width:44px;height:44px;border-radius:11px;background:var(--or4);border:1.5px solid var(--or5);display:flex;align-items:center;justify-content:center;font-size:1.45rem;flex-shrink:0}
+[data-theme="dark"] .ex-emoji{background:rgba(232,70,10,.12);border-color:rgba(232,70,10,.22)}
+.ex-hinfo{flex:1}
+.ex-hinfo h3{font-family:'Oswald',sans-serif;font-size:.98rem;font-weight:700;letter-spacing:1px;color:var(--tx);margin-bottom:.04rem}
+.ex-hinfo p{font-size:.7rem;color:var(--tx2)}
+.ex-meta{display:flex;gap:.38rem;align-items:center;flex-shrink:0}
+.level-pill{font-size:.58rem;font-family:'JetBrains Mono',monospace;font-weight:700;padding:.18rem .58rem;border-radius:100px;border:1.5px solid;white-space:nowrap}
+.lv-easy{background:var(--gn2);color:var(--gn);border-color:var(--gn3)}
+.lv-mid{background:var(--or4);color:var(--or);border-color:var(--or5)}
+.lv-hard{background:#FDECEA;color:#C0392B;border-color:#FAC9C5}
+[data-theme="dark"] .lv-hard{background:#2A0808;border-color:#5A1818}
+.ex-arrow{width:27px;height:27px;border-radius:50%;border:1.5px solid var(--bd);background:transparent;display:flex;align-items:center;justify-content:center;font-size:.72rem;color:var(--tx3);transition:var(--trans);flex-shrink:0}
+.ex-card.active .ex-arrow{background:var(--or4);border-color:var(--or);color:var(--or);transform:rotate(180deg)}
+[data-theme="dark"] .ex-card.active .ex-arrow{background:rgba(232,70,10,.12)}
+.ex-body{display:none;border-top:1.5px solid var(--bd);padding:1rem .95rem 1.1rem;animation:fadeSlide .25s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.ex-body.open{display:block}
+.ex-inner{display:grid;grid-template-columns:150px 1fr;gap:1.1rem;align-items:start}
+.ex-photo{width:150px;height:135px;border-radius:var(--r2);overflow:hidden;border:1.5px solid var(--bd);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:3.2rem;flex-shrink:0}
+.ex-photo img{width:100%;height:100%;object-fit:cover}
+.ex-detail h4{font-size:.6rem;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:2px;margin-bottom:.5rem}
+.steps{display:flex;flex-direction:column;gap:.42rem}
+.step{display:flex;gap:.58rem;align-items:flex-start}
+.step-n{width:19px;height:19px;border-radius:50%;background:var(--or);color:#fff;font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-family:'JetBrains Mono',monospace}
+.step-t{font-size:.75rem;color:var(--tx2);line-height:1.5}
+.ex-chips{display:flex;gap:.28rem;flex-wrap:wrap;margin-top:.65rem;padding-top:.65rem;border-top:1px dashed var(--bd)}
+.ex-chip{font-size:.58rem;background:var(--bl2);color:var(--bl);padding:.13rem .48rem;border-radius:100px;font-family:'JetBrains Mono',monospace;font-weight:600;border:1px solid var(--bl3)}
+.ex-tip{background:var(--or4);border:1.5px solid var(--or5);border-radius:9px;padding:.65rem .8rem;margin-top:.75rem;font-size:.73rem;color:var(--or);line-height:1.55}
+[data-theme="dark"] .ex-tip{background:rgba(232,70,10,.08);border-color:rgba(232,70,10,.18)}
+.ex-tip b{font-weight:700}
+
+/* workouts */
+.wk-tabs{display:flex;gap:.32rem;margin-bottom:.95rem;flex-wrap:wrap}
+.wtab{background:transparent;border:1.5px solid var(--bd);color:var(--tx2);padding:.32rem .85rem;border-radius:100px;font-size:.7rem;font-weight:700;transition:var(--trans)}
+.wtab:hover,.wtab.on{background:var(--or);color:#fff;border-color:var(--or)}
+.wk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem}
+.wk-card{background:var(--card);border:1.5px solid var(--bd);border-radius:12px;overflow:hidden;transition:var(--trans);cursor:pointer}
+.wk-card:hover{border-color:var(--or);box-shadow:var(--sh2);transform:translateY(-3px)}
+.wk-img{height:100px;overflow:hidden;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:3rem}
+.wk-img img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.wk-card:hover .wk-img img{transform:scale(1.06)}
+.wk-body{padding:.75rem .88rem}
+.wk-lvl{font-size:.58rem;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--or);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.2rem}
+.wk-name{font-family:'Oswald',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:1px;color:var(--tx);margin-bottom:.22rem}
+.wk-meta{display:flex;gap:.65rem;font-size:.68rem;color:var(--tx2);font-weight:600}
+
+/* chat */
+.chat-wrap{background:var(--card);border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.chat-top{background:var(--bg);border-bottom:1.5px solid var(--bd);padding:.75rem 1.05rem;display:flex;align-items:center;gap:.75rem}
+.chat-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.chat-av-name{font-weight:700;font-size:.83rem;color:var(--tx)}
+.chat-av-st{font-size:.66rem;color:var(--gn);font-weight:600}
+.chat-msgs{padding:.95rem;display:flex;flex-direction:column;gap:.72rem;max-height:320px;overflow-y:auto}
+.cmsg{max-width:82%}
+.cmsg.bot{align-self:flex-start}.cmsg.usr{align-self:flex-end}
+.cmsg-b{padding:.62rem .88rem;border-radius:11px;font-size:.79rem;line-height:1.52}
+.cmsg.bot .cmsg-b{background:var(--bg);border:1.5px solid var(--bd);color:var(--tx);border-radius:4px 11px 11px 11px}
+.cmsg.usr .cmsg-b{background:var(--or);color:#fff;border-radius:11px 4px 11px 11px}
+.cmsg-t{font-size:.59rem;color:var(--tx3);margin-top:.2rem;font-family:'JetBrains Mono',monospace}
+.cmsg.usr .cmsg-t{text-align:right}
+.chat-in-row{padding:.75rem .95rem;border-top:1.5px solid var(--bd);display:flex;gap:.52rem;align-items:center;background:var(--bg)}
+.chat-in{flex:1;background:var(--card);border:1.5px solid var(--bd);border-radius:9px;color:var(--tx);font-family:'Nunito',sans-serif;font-size:.79rem;padding:.55rem .82rem;outline:none;transition:border-color .2s}
+.chat-in::placeholder{color:var(--tx3)}
+.chat-in:focus{border-color:var(--or)}
+.chat-send-btn{width:35px;height:35px;border-radius:9px;background:var(--or);border:none;display:flex;align-items:center;justify-content:center;font-size:.88rem;color:#fff;transition:var(--trans);flex-shrink:0}
+.chat-send-btn:hover{background:var(--or2);transform:scale(1.07)}
+.typing-dots{display:flex;align-items:center;gap:.28rem;padding:.28rem 0}
+.typing-dots span{width:5px;height:5px;border-radius:50%;background:var(--or);animation:tydot 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes tydot{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-5px);opacity:1}}
+
+/* page sections */
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.reveal.vis{opacity:1;transform:translateY(0)}
+
+/* overlay when nav open on mobile */
+.nav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:490;display:none}
+.nav-overlay.show{display:block}
+
+footer{background:var(--nav-bg);color:rgba(255,255,255,.35);text-align:center;padding:1.3rem;font-size:.7rem;font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
+footer span{color:var(--or3)}
+
+@media(max-width:1100px){
+  .rightsb{display:none}
+  .app-body{margin-right:0}
+}
+@media(max-width:760px){
+  .leftnav{transform:translateX(-100%)}
+  .leftnav.mobile-open{transform:translateX(0)}
+  .app-body{margin-left:0!important}
+  .body-grid,.wk-grid,.calc-grid{grid-template-columns:1fr}
+  .metric-row{grid-template-columns:1fr 1fr}
+  .hero{grid-template-columns:1fr}
+  .hero-right{display:none}
+  .ex-inner{grid-template-columns:1fr}
+  .ia-preview.show{grid-template-columns:1fr}
+  .nav-overlay.show{display:block}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV OVERLAY (mobile) -->
+<div class="nav-overlay" id="navOverlay" onclick="closeNav()"></div>
+
+<!-- ══════════════════════════════════════
+     LEFT NAV
+══════════════════════════════════════ -->
+<nav class="leftnav" id="leftnav">
+  <div class="ln-inner">
+    <div class="ln-logo">
+      <div>
+        <div class="ln-logo-txt">Fit<b>Mind</b> AI</div>
+        <div class="ln-logo-sub">INTELLIGENT FITNESS</div>
+      </div>
+      <button class="ln-close-btn" onclick="closeNav()" title="Close menu">✕</button>
+    </div>
+    <div class="ln-streak">🔥 21-Day Streak Active</div>
+    <div class="ln-menu">
+      <div class="ln-section-label">MAIN</div>
+      <a class="ln-item active" onclick="showPage('dashboard',this)"><span class="ln-icon">🏠</span> Dashboard</a>
+      <a class="ln-item" onclick="showPage('body',this)"><span class="ln-icon">🫀</span> Body Guide</a>
+      <a class="ln-item" onclick="showPage('exercises',this)"><span class="ln-icon">🏋️</span> Exercises<span class="ln-badge">5</span></a>
+      <a class="ln-item" onclick="showPage('workouts',this)"><span class="ln-icon">⚡</span> Workouts<span class="ln-badge">200+</span></a>
+      <div class="ln-section-label" style="margin-top:.5rem">AI TOOLS</div>
+      <a class="ln-item" onclick="showPage('imageanalysis',this)"><span class="ln-icon">📸</span> Image Analysis</a>
+      <a class="ln-item" onclick="showPage('calculators',this)"><span class="ln-icon">🧮</span> Calculators</a>
+      <a class="ln-item" onclick="showPage('coach',this)"><span class="ln-icon">🤖</span> AI Coach</a>
+      <div class="ln-section-label" style="margin-top:.5rem">TRACK</div>
+      <a class="ln-item" onclick="showPage('dashboard',this)"><span class="ln-icon">📊</span> Progress</a>
+      <a class="ln-item" onclick="showPage('dashboard',this)"><span class="ln-icon">🍽️</span> Nutrition</a>
+    </div>
+
+
+    <div class="ln-bottom">
+      <button class="ln-start-btn" onclick="showPage('workouts',null)">▶ Start Workout</button>
+      <div class="ln-user">
+        <div class="ln-avatar">👤</div>
+        <div>
+          <div class="ln-user-name">Alex Johnson</div>
+          <div class="ln-user-plan">Pro Member</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     MAIN BODY
+══════════════════════════════════════ -->
+<div class="app-body" id="appBody">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="nav-toggle-btn" onclick="toggleNav()" title="Toggle menu">☰</button>
+      <div class="topbar-title" id="topbar-title">DASHBOARD</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-pill">🔥 Recovery: 94%</div>
+
+      <div class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        <span id="theme-label">Dark Mode</span>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="main">
+
+  <!-- ══════════════════════════════════════ DASHBOARD -->
+  <div class="page-section active" id="page-dashboard">
+    <div class="hero reveal">
+      <div class="hero-left">
+        <div class="hero-badge"><span class="live-dot"></span> AI-Powered Fitness Intelligence</div>
+        <h1 class="hero-title">TRAIN SMARTER.<br>LIVE BETTER.</h1>
+        <p class="hero-sub">Your personal AI coach learns your body, adapts every workout, and guides you to peak performance — every day.</p>
+        <div class="hero-btns">
+          <button class="btn-wh" onclick="showPage('workouts',null)">Start Workout</button>
+          <button class="btn-ol" onclick="showPage('coach',null)">Meet AI Coach</button>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><div class="hstat-n">50K+</div><div class="hstat-l">Active Users</div></div>
+          <div class="hstat"><div class="hstat-n">98%</div><div class="hstat-l">Goal Rate</div></div>
+          <div class="hstat"><div class="hstat-n">200+</div><div class="hstat-l">AI Workouts</div></div>
+        </div>
+      </div>
+      <div class="hero-right">
+        <img class="hero-body-img" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=260&h=320&fit=crop&crop=center" alt="Fitness" onerror="this.style.display='none'">
+        <div class="hero-score-card"><div class="hsc-label">Recovery Score</div><div class="hsc-val">94% 🔥</div></div>
+        <div class="hero-score-card"><div class="hsc-label">Streak</div><div class="hsc-val">21 Days</div></div>
+      </div>
+    </div>
+    <div class="metric-row reveal">
+      <div class="mbox"><div class="mbox-icon">🔥</div><div class="mbox-val">2,847</div><div class="mbox-lbl">Calories Burned</div><div class="mbox-chg chg-up">↑ +12% this week</div></div>
+      <div class="mbox"><div class="mbox-icon">💪</div><div class="mbox-val">18.4K</div><div class="mbox-lbl">Total Reps</div><div class="mbox-chg chg-up">↑ +8% this month</div></div>
+      <div class="mbox"><div class="mbox-icon">🏃</div><div class="mbox-val">42.7km</div><div class="mbox-lbl">Distance Run</div><div class="mbox-chg chg-dn">↓ -3% rest week</div></div>
+      <div class="mbox"><div class="mbox-icon">😴</div><div class="mbox-val">7.4 hrs</div><div class="mbox-lbl">Avg Sleep</div><div class="mbox-chg chg-up">↑ +0.5 hrs</div></div>
+    </div>
+    <div class="prog-card reveal">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.95rem">
+        <div style="font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1.5px;color:var(--tx)">BODY STRENGTH INDEX</div>
+        <span class="sec-tag">AI Analysis</span>
+      </div>
+      <div class="prog-row"><div class="prog-top"><span class="prog-name">💪 Upper Body Strength</span><span class="prog-val">87%</span></div><div class="prog-track"><div class="prog-fill" style="width:87%"></div></div></div>
+      <div class="prog-row"><div class="prog-top"><span class="prog-name">🦵 Lower Body Power</span><span class="prog-val">79%</span></div><div class="prog-track"><div class="prog-fill" style="width:79%"></div></div></div>
+      <div class="prog-row"><div class="prog-top"><span class="prog-name">🔥 Core Stability</span><span class="prog-val">72%</span></div><div class="prog-track"><div class="prog-fill" style="width:72%"></div></div></div>
+      <div class="prog-row"><div class="prog-top"><span class="prog-name">🧘 Flexibility & Mobility</span><span class="prog-val">60%</span></div><div class="prog-track"><div class="prog-fill" style="width:60%"></div></div></div>
+      <div class="prog-row"><div class="prog-top"><span class="prog-name">❤️ Cardiovascular Fitness</span><span class="prog-val">94%</span></div><div class="prog-track"><div class="prog-fill" style="width:94%"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ BODY GUIDE -->
+  <div class="page-section" id="page-body">
+    <div class="sec-tag">Body Guide</div>
+    <h2 class="sec-h reveal">MUSCLE GROUPS & YOUR BODY</h2>
+    <p class="sec-sub reveal">Understand each muscle group — what it does, how to train it, and how the AI targets it.</p>
+    <div class="body-grid" style="margin-top:1.1rem">
+      <div class="muscle-card reveal"><div class="mc-img-wrap"><img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&h=200&fit=crop&crop=top" alt="Chest"><div class="mc-overlay"><div class="mc-badge-group"><span class="mc-badge">CHEST</span><span class="mc-badge alt">Pectoralis Major</span></div></div></div><div class="mc-body"><div class="mc-name">Chest — Pectoralis Major</div><div class="mc-desc">The primary pushing muscle. Controls arm movement and horizontal pushing. Strong chest improves posture, shoulder stability, and upper-body power.</div><div class="mc-tags"><span class="mc-tag" style="background:var(--or4);color:var(--or);border-color:var(--or5)">Push exercises</span><span class="mc-tag" style="background:var(--or4);color:var(--or);border-color:var(--or5)">Bench press</span><span class="mc-tag" style="background:var(--gn2);color:var(--gn);border-color:var(--gn3)">2–3× / week</span></div></div></div>
+      <div class="muscle-card reveal"><div class="mc-img-wrap"><img src="https://images.unsplash.com/photo-1530822847156-5df684ec5933?w=500&h=200&fit=crop&crop=center" alt="Back"><div class="mc-overlay"><div class="mc-badge-group"><span class="mc-badge">BACK</span><span class="mc-badge alt">Latissimus Dorsi</span></div></div></div><div class="mc-body"><div class="mc-name">Back — Latissimus Dorsi</div><div class="mc-desc">Broadest back muscle for pulling movements. Creates the V-taper. Critical for spinal stability and posture correction.</div><div class="mc-tags"><span class="mc-tag" style="background:var(--or4);color:var(--or);border-color:var(--or5)">Pull exercises</span><span class="mc-tag" style="background:var(--or4);color:var(--or);border-color:var(--or5)">Deadlift</span><span class="mc-tag" style="background:var(--gn2);color:var(--gn);border-color:var(--gn3)">2–3× / week</span></div></div></div>
+      <div class="muscle-card reveal"><div class="mc-img-wrap"><img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=500&h=200&fit=crop&crop=center" alt="Legs"><div class="mc-overlay"><div class="mc-badge-group"><span class="mc-badge">LEGS</span><span class="mc-badge alt">Quads & Hamstrings</span></div></div></div><div class="mc-body"><div class="mc-name">Legs — Quads & Hamstrings</div><div class="mc-desc">60% of your total muscle mass. Strong legs boost metabolism, improve athletic performance, and protect knees from injury.</div><div class="mc-tags"><span class="mc-tag" style="background:var(--or4);color:var(--or);border-color:var(--or5)">Squat</span><span class="mc-tag" style="background:var(--or4);color:var(--or);border-color:var(--or5)">Leg press</span><span class="mc-tag" style="background:var(--gn2);color:var(--gn);border-color:var(--gn3)">2× / week</span></div></div></div>
+      <div class="muscle-card reveal"><div class="mc-img-wrap"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=200&fit=crop&crop=center" alt="Core"><div class="mc-overlay"><div class="mc-badge-group"><span class="mc-badge">CORE</span><span class="mc-badge alt">Abs & Obliques</span></div></div></div><div class="mc-body"><div class="mc-name">Core — Abs & Obliques</div><div class="mc-desc">Your stabilizing center. Controls rotation, bending, and protects the spine. A strong core improves every other exercise.</div><div class="mc-tags"><span class="mc-tag" style="background:var(--or4);color:var(--or);border-color:var(--or5)">Planks</span><span class="mc-tag" style="background:var(--or4);color:var(--or);border-color:var(--or5)">Crunches</span><span class="mc-tag" style="background:var(--gn2);color:var(--gn);border-color:var(--gn3)">3–4× / week</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ EXERCISES -->
+  <div class="page-section" id="page-exercises">
+    <div class="sec-tag">How To</div>
+    <h2 class="sec-h reveal">EXERCISE GUIDES</h2>
+    <p class="sec-sub reveal">Step-by-step with images and AI tips. Click to expand.</p>
+    <div class="ex-list" style="margin-top:1rem">
+      <div class="ex-card active reveal"><div class="ex-header" onclick="toggleEx(this.parentNode)"><div class="ex-emoji">🤸</div><div class="ex-hinfo"><h3>Push-Up</h3><p>Chest · Triceps · Shoulders</p></div><div class="ex-meta"><span class="level-pill lv-easy">Beginner</span><button class="ex-arrow">▴</button></div></div><div class="ex-body open"><div class="ex-inner"><div class="ex-photo"><img src="https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?w=340&h=300&fit=crop" alt="Push-up" onerror="this.parentNode.innerHTML='🤸'"></div><div class="ex-detail"><h4>Step-by-Step Guide</h4><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-t">High plank — hands slightly wider than shoulders, body straight head to heels.</div></div><div class="step"><div class="step-n">2</div><div class="step-t">Brace core, squeeze glutes. Hips must not sag or pike.</div></div><div class="step"><div class="step-n">3</div><div class="step-t">Lower chest toward floor, elbows at 45°. Never flare elbows wide.</div></div><div class="step"><div class="step-n">4</div><div class="step-t">Push explosively up. Fully extend arms without locking elbows.</div></div><div class="step"><div class="step-n">5</div><div class="step-t">Inhale down, exhale up. 3 sets × 12–15 reps.</div></div></div><div class="ex-chips"><span class="ex-chip">Pectoralis Major</span><span class="ex-chip">Triceps Brachii</span><span class="ex-chip">Anterior Deltoid</span><span class="ex-chip">Core</span></div><div class="ex-tip"><b>💡 AI Tip:</b> Wrist pain? Try fist push-ups. Beginners start knees on floor.</div></div></div></div></div>
+      <div class="ex-card reveal"><div class="ex-header" onclick="toggleEx(this.parentNode)"><div class="ex-emoji">🦵</div><div class="ex-hinfo"><h3>Barbell Back Squat</h3><p>Quads · Glutes · Hamstrings</p></div><div class="ex-meta"><span class="level-pill lv-mid">Intermediate</span><button class="ex-arrow">▾</button></div></div><div class="ex-body"><div class="ex-inner"><div class="ex-photo"><img src="https://images.unsplash.com/photo-1566241134883-13eb2393a3a4?w=340&h=300&fit=crop" alt="Squat" onerror="this.parentNode.innerHTML='🦵'"></div><div class="ex-detail"><h4>Step-by-Step Guide</h4><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-t">Feet shoulder-width, toes out 10–30°. Bar on upper traps.</div></div><div class="step"><div class="step-n">2</div><div class="step-t">Big breath, brace core (Valsalva). Protects spine under load.</div></div><div class="step"><div class="step-n">3</div><div class="step-t">Push knees out, sit back and down. Chest tall throughout.</div></div><div class="step"><div class="step-n">4</div><div class="step-t">Lower until thighs parallel. Knees track over toes.</div></div><div class="step"><div class="step-n">5</div><div class="step-t">Drive through heels. Squeeze glutes at top. Exhale up.</div></div></div><div class="ex-chips"><span class="ex-chip">Quadriceps</span><span class="ex-chip">Gluteus Maximus</span><span class="ex-chip">Hamstrings</span><span class="ex-chip">Erector Spinae</span></div><div class="ex-tip"><b>💡 AI Tip:</b> Heels rising? Limited ankle mobility — elevate heels on plates first.</div></div></div></div></div>
+      <div class="ex-card reveal"><div class="ex-header" onclick="toggleEx(this.parentNode)"><div class="ex-emoji">🏋️</div><div class="ex-hinfo"><h3>Conventional Deadlift</h3><p>Back · Glutes · Hamstrings</p></div><div class="ex-meta"><span class="level-pill lv-hard">Advanced</span><button class="ex-arrow">▾</button></div></div><div class="ex-body"><div class="ex-inner"><div class="ex-photo"><img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=340&h=300&fit=crop" alt="Deadlift" onerror="this.parentNode.innerHTML='🏋️'"></div><div class="ex-detail"><h4>Step-by-Step Guide</h4><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-t">Mid-foot under bar. Feet hip-width. Grip just outside legs.</div></div><div class="step"><div class="step-n">2</div><div class="step-t">Hinge hips, shins touch bar. Neutral spine — not rounded.</div></div><div class="step"><div class="step-n">3</div><div class="step-t">Big breath, brace hard, "push the floor away."</div></div><div class="step"><div class="step-n">4</div><div class="step-t">Bar drags close to body. Hips and shoulders rise equally.</div></div><div class="step"><div class="step-n">5</div><div class="step-t">Stand tall squeezing glutes. Lower under control.</div></div></div><div class="ex-chips"><span class="ex-chip">Erector Spinae</span><span class="ex-chip">Gluteus Maximus</span><span class="ex-chip">Hamstrings</span><span class="ex-chip">Trapezius</span></div><div class="ex-tip"><b>💡 AI Tip:</b> Never round lower back. Start with Romanian deadlifts to build the pattern.</div></div></div></div></div>
+      <div class="ex-card reveal"><div class="ex-header" onclick="toggleEx(this.parentNode)"><div class="ex-emoji">🧘</div><div class="ex-hinfo"><h3>Forearm Plank</h3><p>Core · Glutes · Shoulders</p></div><div class="ex-meta"><span class="level-pill lv-easy">Beginner</span><button class="ex-arrow">▾</button></div></div><div class="ex-body"><div class="ex-inner"><div class="ex-photo"><img src="https://images.unsplash.com/photo-1616803689943-5601631c7fec?w=340&h=300&fit=crop" alt="Plank" onerror="this.parentNode.innerHTML='🧘'"></div><div class="ex-detail"><h4>Step-by-Step Guide</h4><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-t">Forearms flat, elbows under shoulders. Clasp hands.</div></div><div class="step"><div class="step-n">2</div><div class="step-t">Lift hips — straight line head to heels. No sag or pike.</div></div><div class="step"><div class="step-n">3</div><div class="step-t">Draw belly to spine. Squeeze glutes. Think "rigid plank."</div></div><div class="step"><div class="step-n">4</div><div class="step-t">Neutral neck, look 12 inches ahead. Don't look up.</div></div><div class="step"><div class="step-n">5</div><div class="step-t">Breathe slowly. Hold 20–60 sec. Stop when form breaks.</div></div></div><div class="ex-chips"><span class="ex-chip">Rectus Abdominis</span><span class="ex-chip">Transverse Abdominis</span><span class="ex-chip">Obliques</span><span class="ex-chip">Glutes</span></div><div class="ex-tip"><b>💡 AI Tip:</b> Perfect 30 sec beats sloppy 2 min. Add 5 seconds weekly.</div></div></div></div></div>
+      <div class="ex-card reveal"><div class="ex-header" onclick="toggleEx(this.parentNode)"><div class="ex-emoji">🔝</div><div class="ex-hinfo"><h3>Pull-Up</h3><p>Lats · Biceps · Rear Delts</p></div><div class="ex-meta"><span class="level-pill lv-mid">Intermediate</span><button class="ex-arrow">▾</button></div></div><div class="ex-body"><div class="ex-inner"><div class="ex-photo"><img src="https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=340&h=300&fit=crop" alt="Pull-up" onerror="this.parentNode.innerHTML='🔝'"></div><div class="ex-detail"><h4>Step-by-Step Guide</h4><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-t">Hang from bar, overhand grip wider than shoulders. Arms extended.</div></div><div class="step"><div class="step-n">2</div><div class="step-t">Pack shoulders down and back before pulling.</div></div><div class="step"><div class="step-n">3</div><div class="step-t">Drive elbows to hips. "Pull bar to chest" not "pull body up."</div></div><div class="step"><div class="step-n">4</div><div class="step-t">Chin clears bar. Squeeze lats 1 second at top.</div></div><div class="step"><div class="step-n">5</div><div class="step-t">Lower slowly 2–3 sec. Eccentric builds most strength.</div></div></div><div class="ex-chips"><span class="ex-chip">Latissimus Dorsi</span><span class="ex-chip">Biceps Brachii</span><span class="ex-chip">Posterior Deltoid</span><span class="ex-chip">Rhomboids</span></div><div class="ex-tip"><b>💡 AI Tip:</b> Can't do one? Use bands or practice negative-only pull-ups to build strength.</div></div></div></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ WORKOUTS -->
+  <div class="page-section" id="page-workouts">
+    <div class="sec-tag">Workout Library</div>
+    <h2 class="sec-h reveal">200+ AI CURATED PLANS</h2>
+    <p class="sec-sub reveal">Personalized to your level and goals — updated weekly by the AI engine.</p>
+    <div class="wk-tabs" style="margin-top:1rem">
+      <button class="wtab on" onclick="filterWk(this,'all')">All</button>
+      <button class="wtab" onclick="filterWk(this,'strength')">Strength</button>
+      <button class="wtab" onclick="filterWk(this,'cardio')">Cardio</button>
+      <button class="wtab" onclick="filterWk(this,'hiit')">HIIT</button>
+      <button class="wtab" onclick="filterWk(this,'yoga')">Yoga</button>
+    </div>
+    <div class="wk-grid">
+      <div class="wk-card reveal" data-t="strength"><div class="wk-img"><img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=300&h=120&fit=crop" alt="" onerror="this.parentNode.innerHTML='💪'"></div><div class="wk-body"><div class="wk-lvl">Intermediate</div><div class="wk-name">Power Upper Body</div><div class="wk-meta"><span>⏱ 45 min</span><span>🔥 520 kcal</span></div></div></div>
+      <div class="wk-card reveal" data-t="strength"><div class="wk-img"><img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=300&h=120&fit=crop" alt="" onerror="this.parentNode.innerHTML='🦵'"></div><div class="wk-body"><div class="wk-lvl">Advanced</div><div class="wk-name">Leg Day Destroyer</div><div class="wk-meta"><span>⏱ 50 min</span><span>🔥 610 kcal</span></div></div></div>
+      <div class="wk-card reveal" data-t="hiit"><div class="wk-img"><img src="https://images.unsplash.com/photo-1483721310020-03333e577078?w=300&h=120&fit=crop" alt="" onerror="this.parentNode.innerHTML='⚡'"></div><div class="wk-body"><div class="wk-lvl">All Levels</div><div class="wk-name">HIIT Inferno</div><div class="wk-meta"><span>⏱ 25 min</span><span>🔥 680 kcal</span></div></div></div>
+      <div class="wk-card reveal" data-t="cardio"><div class="wk-img"><img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=300&h=120&fit=crop" alt="" onerror="this.parentNode.innerHTML='🏃'"></div><div class="wk-body"><div class="wk-lvl">Beginner</div><div class="wk-name">Cardio Blaze</div><div class="wk-meta"><span>⏱ 30 min</span><span>🔥 380 kcal</span></div></div></div>
+      <div class="wk-card reveal" data-t="yoga"><div class="wk-img"><img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&h=120&fit=crop" alt="" onerror="this.parentNode.innerHTML='🧘'"></div><div class="wk-body"><div class="wk-lvl">All Levels</div><div class="wk-name">Flow & Restore</div><div class="wk-meta"><span>⏱ 40 min</span><span>🔥 180 kcal</span></div></div></div>
+      <div class="wk-card reveal" data-t="strength"><div class="wk-img"><img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&h=120&fit=crop" alt="" onerror="this.parentNode.innerHTML='🏋️'"></div><div class="wk-body"><div class="wk-lvl">Intermediate</div><div class="wk-name">Full Body Power</div><div class="wk-meta"><span>⏱ 55 min</span><span>🔥 590 kcal</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ IMAGE ANALYSIS -->
+  <div class="page-section" id="page-imageanalysis">
+    <div class="sec-tag">AI Tool</div>
+    <h2 class="sec-h reveal">BODY IMAGE ANALYSIS</h2>
+    <p class="sec-sub reveal">Upload a photo and let the AI analyse your body composition, posture, and give personalised fitness recommendations.</p>
+    <div class="imganalysis-card reveal" style="margin-top:1.1rem">
+      <div class="ia-top">
+        <div class="ia-icon">📸</div>
+        <div class="ia-head-text"><h3>AI BODY SCANNER</h3><p>Upload a full-body photo for instant AI analysis</p></div>
+      </div>
+      <div class="ia-body">
+        <div id="ia-no-key" style="display:none;background:var(--or4);border:1.5px solid var(--or5);border-radius:10px;padding:1rem;font-size:.82rem;color:var(--or);margin-bottom:1rem">
+          ⚠️ Please save your AI API key in the sidebar (left menu → scroll down) to enable image analysis.
+        </div>
+        <div class="upload-zone" id="uploadZone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+          <input type="file" class="upload-input" id="imgInput" accept="image/*" onchange="handleImageUpload(event)">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">Drop your photo here or click to browse</div>
+          <div class="upload-sub">JPG, PNG, WEBP · Best results: full-body photo in good lighting</div>
+        </div>
+        <button class="ia-analyze-btn" id="analyzeBtn" onclick="runAIAnalysis()">🔍 Analyse My Body</button>
+        <div class="ia-loading" id="iaLoading">
+          <div class="ia-loading-spinner"></div>
+          <div style="font-size:.83rem;font-weight:600;color:var(--tx2)">AI is analysing your image…</div>
+          <div style="font-size:.73rem;color:var(--tx3);margin-top:.28rem">Scanning body composition, posture & muscle groups</div>
+        </div>
+        <div class="ia-preview" id="iaPreview">
+          <div class="ia-img-wrap">
+            <img id="previewImg" src="" alt="Uploaded">
+            <div class="ia-img-overlay">✓ AI Analysed</div>
+          </div>
+          <div>
+            <div class="ia-result-title">📊 AI Analysis Results</div>
+            <div class="ia-stream-text" id="iaStreamText"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ CALCULATORS -->
+  <div class="page-section" id="page-calculators">
+    <div class="sec-tag">AI Tools</div>
+    <h2 class="sec-h reveal">BMI & CALORIE CALCULATORS</h2>
+    <p class="sec-sub reveal">Instant personalised results — know your numbers and hit your goals faster.</p>
+    <div class="calc-grid" style="margin-top:1.1rem">
+      <div class="calc-card reveal">
+        <div class="calc-title">⚖️ BMI Calculator</div>
+        <div class="calc-sub">Body Mass Index — understand your weight relative to height with a personalised health assessment.</div>
+        <div class="form-row"><div class="form-group"><label>Height (cm)</label><input type="number" id="bmi-h" placeholder="e.g. 175" min="100" max="250"></div><div class="form-group"><label>Weight (kg)</label><input type="number" id="bmi-w" placeholder="e.g. 70" min="30" max="300"></div></div>
+        <div class="form-row"><div class="form-group"><label>Age</label><input type="number" id="bmi-age" placeholder="e.g. 28" min="10" max="100"></div><div class="form-group"><label>Gender</label><select id="bmi-gen"><option value="male">Male</option><option value="female">Female</option></select></div></div>
+        <button class="calc-btn" onclick="calcBMI()">Calculate BMI</button>
+        <div class="calc-result" id="bmi-result">
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.55rem">
+            <div><div class="result-main" id="bmi-val">—</div><div class="result-label" id="bmi-cat">—</div></div>
+            <div style="flex:1"><div class="bmi-scale"><div class="bmi-bar" style="background:#3498DB;flex:1.5"></div><div class="bmi-bar" style="background:#2ECC71;flex:1.3"></div><div class="bmi-bar" style="background:#F39C12;flex:1.2"></div><div class="bmi-bar" style="background:#E74C3C;flex:1"></div></div><div class="bmi-labels"><span>Under</span><span>Normal</span><span>Over</span><span>Obese</span></div><div style="position:relative;height:10px"><div id="bmi-pointer" style="position:absolute;width:10px;height:10px;border-radius:50%;background:var(--or);border:2px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.25);top:0;transform:translateX(-50%);transition:left .6s ease;left:0%"></div></div></div>
+          </div>
+          <div class="result-detail" id="bmi-detail">—</div>
+        </div>
+      </div>
+      <div class="calc-card reveal">
+        <div class="calc-title">🔥 Calorie Calculator</div>
+        <div class="calc-sub">Daily calorie needs (TDEE) from your body stats, lifestyle, and goals — with AI macro breakdown.</div>
+        <div class="form-row"><div class="form-group"><label>Height (cm)</label><input type="number" id="cal-h" placeholder="e.g. 175"></div><div class="form-group"><label>Weight (kg)</label><input type="number" id="cal-w" placeholder="e.g. 70"></div></div>
+        <div class="form-row"><div class="form-group"><label>Age</label><input type="number" id="cal-age" placeholder="e.g. 28"></div><div class="form-group"><label>Gender</label><select id="cal-gen"><option value="male">Male</option><option value="female">Female</option></select></div></div>
+        <div class="form-row" style="grid-template-columns:1fr"><div class="form-group"><label>Activity Level</label><select id="cal-act"><option value="1.2">Sedentary (little or no exercise)</option><option value="1.375">Lightly active (1–3 days/week)</option><option value="1.55" selected>Moderately active (3–5 days/week)</option><option value="1.725">Very active (6–7 days/week)</option><option value="1.9">Extra active (2× per day)</option></select></div></div>
+        <div class="form-row" style="grid-template-columns:1fr"><div class="form-group"><label>Goal</label><select id="cal-goal"><option value="lose">Lose Weight (−500 kcal)</option><option value="maintain" selected>Maintain Weight</option><option value="gain">Gain Muscle (+300 kcal)</option></select></div></div>
+        <button class="calc-btn" onclick="calcCalories()">Calculate Calories</button>
+        <div class="calc-result" id="cal-result">
+          <div class="result-main" id="cal-val">—</div>
+          <div class="result-label">kcal / day recommended</div>
+          <div class="result-detail" id="cal-detail">—</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.45rem;margin-top:.65rem" id="cal-macros-display"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ AI COACH -->
+  <div class="page-section" id="page-coach">
+    <div class="sec-tag">Virtual Coach</div>
+    <h2 class="sec-h reveal">YOUR 24/7 AI FITNESS COACH</h2>
+    <p class="sec-sub reveal">Real AI coaching personalised to you. Add your API key in the sidebar to enable live responses.</p>
+    <div class="chat-wrap reveal" style="margin-top:1rem">
+      <div class="chat-top">
+        <div class="chat-av">🤖</div>
+        <div style="flex:1"><div class="chat-av-name">FitMind AI Coach</div><div class="chat-av-st" id="chatStatus">● Waiting for API key</div></div>
+        <button onclick="clearChat()" style="background:transparent;border:1.5px solid var(--bd);border-radius:7px;padding:.3rem .7rem;font-size:.7rem;color:var(--tx2);transition:var(--trans)" onmouseover="this.style.borderColor='var(--or)'" onmouseout="this.style.borderColor='var(--bd)'">Clear Chat</button>
+      </div>
+      <div class="chat-msgs" id="cmsgs">
+        <div class="cmsg bot"><div class="cmsg-b">👋 Hi! I'm your FitMind AI Coach. Add your API key in the sidebar (scroll down in the left menu), then ask me anything about workouts, nutrition, form, or recovery!</div><div class="cmsg-t">Now</div></div>
+      </div>
+      <div class="chat-in-row">
+        <input class="chat-in" id="cin" type="text" placeholder="Ask your AI coach anything…" onkeypress="handleKey(event)">
+        <button class="chat-send-btn" onclick="sendMsg()" title="Send">➤</button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /main -->
+</div><!-- /app-body -->
+
+<!-- ══════════════════════════════════════
+     RIGHT SIDEBAR
+══════════════════════════════════════ -->
+<aside class="rightsb">
+  <div>
+    <div class="sb-head">⏱ Today's Nutrition</div>
+    <div class="cal-ring-wrap">
+      <div class="ring-svg-wrap">
+        <svg class="ring-svg" width="74" height="74" viewBox="0 0 74 74">
+          <circle cx="37" cy="37" r="29" fill="none" stroke="var(--bg2)" stroke-width="8"/>
+          <circle cx="37" cy="37" r="29" fill="none" stroke="#E8460A" stroke-width="8" stroke-dasharray="182" stroke-dashoffset="33" stroke-linecap="round"/>
+        </svg>
+        <div class="ring-label"><span class="rl-num">1840</span><span class="rl-sub">/ 2200 kcal</span></div>
+      </div>
+      <div class="cal-macros">
+        <div class="macro-row"><div class="macro-dot" style="background:var(--or)"></div><div class="macro-info"><div class="macro-name">Protein</div><div class="macro-bar-wrap"><div class="macro-bar" style="width:74%;background:var(--or)"></div></div></div><div class="macro-val">142g</div></div>
+        <div class="macro-row"><div class="macro-dot" style="background:var(--bl)"></div><div class="macro-info"><div class="macro-name">Carbs</div><div class="macro-bar-wrap"><div class="macro-bar" style="width:60%;background:var(--bl)"></div></div></div><div class="macro-val">210g</div></div>
+        <div class="macro-row"><div class="macro-dot" style="background:var(--gn)"></div><div class="macro-info"><div class="macro-name">Fat</div><div class="macro-bar-wrap"><div class="macro-bar" style="width:52%;background:var(--gn)"></div></div></div><div class="macro-val">58g</div></div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="sb-head">💧 Hydration</div>
+    <div class="water-grid" id="wgrid">
+      <div class="wcup on" onclick="tog(0)">🥤</div><div class="wcup on" onclick="tog(1)">🥤</div>
+      <div class="wcup on" onclick="tog(2)">🥤</div><div class="wcup on" onclick="tog(3)">🥤</div>
+      <div class="wcup on" onclick="tog(4)">🥤</div><div class="wcup on" onclick="tog(5)">🥤</div>
+      <div class="wcup off" onclick="tog(6)">🥤</div><div class="wcup off" onclick="tog(7)">🥤</div>
+    </div>
+    <div class="water-status" id="wstat">6 / 8 glasses ✓</div>
+  </div>
+  <div>
+    <div class="sb-head">🥗 Power Foods</div>
+    <div class="diet-scroll">
+      <div class="diet-card"><div class="diet-em">🥚</div><div class="diet-txt"><h4>Eggs (2 whole)</h4><p>Complete protein, all 9 amino acids. Best for muscle repair.</p><div class="pill-row"><span class="pill pill-or">140 kcal</span><span class="pill pill-or">12g protein</span><span class="pill pill-gn">healthy fats</span></div></div></div>
+      <div class="diet-card"><div class="diet-em">🍗</div><div class="diet-txt"><h4>Chicken Breast (150g)</h4><p>Lean protein king. Low fat, high protein — ideal post-workout.</p><div class="pill-row"><span class="pill pill-or">165 kcal</span><span class="pill pill-or">31g protein</span><span class="pill pill-bl">low fat</span></div></div></div>
+      <div class="diet-card"><div class="diet-em">🥑</div><div class="diet-txt"><h4>Avocado (½ fruit)</h4><p>Monounsaturated fats for hormones and joint recovery.</p><div class="pill-row"><span class="pill pill-or">120 kcal</span><span class="pill pill-gn">omega-9</span><span class="pill pill-bl">potassium</span></div></div></div>
+      <div class="diet-card"><div class="diet-em">🍌</div><div class="diet-txt"><h4>Banana (1 medium)</h4><p>Fast carbs + potassium. Perfect pre-workout energy.</p><div class="pill-row"><span class="pill pill-or">105 kcal</span><span class="pill pill-bl">27g carbs</span><span class="pill pill-gn">B6 vitamin</span></div></div></div>
+      <div class="diet-card"><div class="diet-em">🥦</div><div class="diet-txt"><h4>Broccoli (1 cup)</h4><p>Vitamin C powerhouse. Reduces post-exercise inflammation.</p><div class="pill-row"><span class="pill pill-or">55 kcal</span><span class="pill pill-gn">high fiber</span><span class="pill pill-bl">vitamin C</span></div></div></div>
+      <div class="diet-card"><div class="diet-em">🐟</div><div class="diet-txt"><h4>Salmon (100g)</h4><p>Omega-3 for joints, soreness reduction, and brain fuel.</p><div class="pill-row"><span class="pill pill-or">208 kcal</span><span class="pill pill-or">20g protein</span><span class="pill pill-gn">omega-3</span></div></div></div>
+      <div class="diet-card"><div class="diet-em">🌾</div><div class="diet-txt"><h4>Oats (½ cup dry)</h4><p>Slow carbs for sustained energy across long sessions.</p><div class="pill-row"><span class="pill pill-or">150 kcal</span><span class="pill pill-bl">27g carbs</span><span class="pill pill-gn">beta-glucan</span></div></div></div>
+      <div class="diet-card"><div class="diet-em">🥛</div><div class="diet-txt"><h4>Greek Yogurt (200g)</h4><p>Casein + probiotics. Ideal bedtime snack for overnight repair.</p><div class="pill-row"><span class="pill pill-or">130 kcal</span><span class="pill pill-or">17g protein</span><span class="pill pill-pu">probiotics</span></div></div></div>
+      <div class="diet-card"><div class="diet-em">🥜</div><div class="diet-txt"><h4>Almond Butter (2 tbsp)</h4><p>Healthy fats + vitamin E. Great snack between meals.</p><div class="pill-row"><span class="pill pill-or">190 kcal</span><span class="pill pill-gn">healthy fats</span><span class="pill pill-bl">vitamin E</span></div></div></div>
+      <div class="diet-card"><div class="diet-em">🍠</div><div class="diet-txt"><h4>Sweet Potato (1 med)</h4><p>Complex carbs + beta-carotene. Top glycogen restorer.</p><div class="pill-row"><span class="pill pill-or">103 kcal</span><span class="pill pill-bl">24g carbs</span><span class="pill pill-gn">beta-carotene</span></div></div></div>
+    </div>
+  </div>
+  <div>
+    <div class="sb-head">🕐 Meal Timing</div>
+    <div class="timing-list">
+      <div class="timing-row" style="background:var(--or4);border:1px solid var(--or5)"><b>Pre-Workout</b><span style="color:var(--or)">30–60 min before</span></div>
+      <div class="timing-row" style="background:var(--gn2);border:1px solid var(--gn3)"><b>Post-Workout</b><span style="color:var(--gn)">Within 30 min</span></div>
+      <div class="timing-row" style="background:var(--bl2);border:1px solid var(--bl3)"><b>Bedtime Snack</b><span style="color:var(--bl)">1 hr before sleep</span></div>
+      <div class="timing-row" style="background:var(--pu2);border:1px solid #d8c8f0"><b>Morning Fuel</b><span style="color:var(--pu)">Within 1 hr waking</span></div>
+    </div>
+  </div>
+</aside>
+
+<script>
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let navOpen = true;
+let currentTheme = localStorage.getItem('fitmind-theme') || 'light';
+let apiKey = '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'; // ← Paste your API key here
+let chatHistory = [];
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Apply saved theme
+  applyTheme(currentTheme);
+  // Apply saved API key
+  if (apiKey) {
+    document.getElementById('apiKeyInput').value = apiKey;
+    updateApiStatus(true);
+  }
+  // Reveal dashboard
+  setTimeout(() => {
+    document.querySelectorAll('#page-dashboard .reveal').forEach(el => el.classList.add('vis'));
+  }, 200);
+  // Check viewport width
+  if (window.innerWidth < 760) {
+    collapseNav();
+  }
+});
+
+/* ══════════════════════════════════════
+   THEME TOGGLE
+══════════════════════════════════════ */
+function toggleTheme() {
+  currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+  applyTheme(currentTheme);
+  localStorage.setItem('fitmind-theme', currentTheme);
+}
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  currentTheme = theme;
+  document.getElementById('theme-label').textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
+}
+
+/* ══════════════════════════════════════
+   NAV TOGGLE
+══════════════════════════════════════ */
+function toggleNav() {
+  if (window.innerWidth < 760) {
+    // Mobile: use transform
+    const nav = document.getElementById('leftnav');
+    const overlay = document.getElementById('navOverlay');
+    if (nav.classList.contains('mobile-open')) {
+      nav.classList.remove('mobile-open');
+      overlay.classList.remove('show');
+    } else {
+      nav.classList.add('mobile-open');
+      overlay.classList.add('show');
+    }
+  } else {
+    // Desktop: collapse width
+    navOpen = !navOpen;
+    const nav = document.getElementById('leftnav');
+    const body = document.getElementById('appBody');
+    if (navOpen) {
+      nav.classList.remove('collapsed');
+      body.classList.remove('nav-collapsed');
+    } else {
+      nav.classList.add('collapsed');
+      body.classList.add('nav-collapsed');
+    }
+  }
+}
+function closeNav() {
+  if (window.innerWidth < 760) {
+    document.getElementById('leftnav').classList.remove('mobile-open');
+    document.getElementById('navOverlay').classList.remove('show');
+  } else {
+    navOpen = false;
+    document.getElementById('leftnav').classList.add('collapsed');
+    document.getElementById('appBody').classList.add('nav-collapsed');
+  }
+}
+function collapseNav() {
+  navOpen = false;
+  document.getElementById('leftnav').classList.add('collapsed');
+  document.getElementById('appBody').classList.add('nav-collapsed');
+}
+
+/* ══════════════════════════════════════
+   API PANEL TOGGLE
+══════════════════════════════════════ */
+function toggleApiPanel() {
+  const panel = document.getElementById('apiPanel');
+  const item  = document.getElementById('apiNavItem');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  item.classList.toggle('active', !isOpen);
+}
+
+/* ══════════════════════════════════════
+   API PROVIDER SETUP
+══════════════════════════════════════ */
+let apiProvider = 'gorq'; // ← Change to: 'gemini' | 'openai' | 'claude' | 'other'
+let customEndpoint = 'https://api.groq.com/openai/v1/chat/completions'; // ← If using custom provider, paste endpoint URL here
+let customModel = 'llama-3.3-70b-versatile'; // ← If using custom provider, paste model name here
+
+// Set dropdown on load
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('apiProvider');
+  if (sel) { sel.value = apiProvider; onProviderChange(true); }
+  // Restore saved custom endpoint & model into sidebar inputs
+  if (customEndpoint) {
+    const ep = document.getElementById('customEndpointInput');
+    if (ep) ep.value = customEndpoint;
+  }
+  if (customModel) {
+    const md = document.getElementById('customModelInput');
+    if (md) md.value = customModel;
+  }
+});
+
+function onProviderChange(silent) {
+  const p = document.getElementById('apiProvider').value;
+  apiProvider = p;
+  const row = document.getElementById('customEndpointRow');
+  if (p === 'other') {
+    row.style.display = 'flex';
+  } else {
+    row.style.display = 'none';
+  }
+  const placeholders = {
+    gemini: 'AIzaSy… (Google AI Studio key)',
+    openai: 'sk-… (OpenAI API key)',
+    claude: 'sk-ant-… (Anthropic Console key)',
+    other:  'Paste your API key here…'
+  };
+  document.getElementById('apiKeyInput').placeholder = placeholders[p] || 'Paste your API key here…';
+}
+
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const provider = document.getElementById('apiProvider').value;
+  if (!key || key.length < 8) { alert('Please enter a valid API key.'); return; }
+
+  apiKey = key;
+  apiProvider = provider;
+  localStorage.setItem('fitmind-apikey', apiKey);
+  localStorage.setItem('fitmind-provider', apiProvider);
+
+  if (provider === 'other') {
+    customEndpoint = document.getElementById('customEndpointInput').value.trim();
+    customModel = document.getElementById('customModelInput').value.trim();
+    localStorage.setItem('fitmind-endpoint', customEndpoint);
+    localStorage.setItem('fitmind-model', customModel);
+  }
+
+  updateApiStatus(true);
+  // Flash confirmation then close the API panel
+  const btn = document.querySelector('.api-save-btn');
+  if (btn) {
+    btn.textContent = '✓ Connected!';
+    btn.style.background = '#2ECC71';
+    setTimeout(() => {
+      btn.textContent = 'Save & Connect';
+      btn.style.background = '';
+      // Close the panel
+      const panel = document.getElementById('apiPanel');
+      const item  = document.getElementById('apiNavItem');
+      if (panel) panel.style.display = 'none';
+      if (item)  item.classList.remove('active');
+    }, 1200);
+  }
+}
+function updateApiStatus(ok) {
+  const dot = document.getElementById('apiDot');
+  const txt = document.getElementById('apiStatusText');
+  const ind = document.getElementById('api-indicator');
+  const chatStatus = document.getElementById('chatStatus');
+  const badge = document.getElementById('apiNavBadge');
+  const navItem = document.getElementById('apiNavItem');
+  if (ok) {
+    if (dot) { dot.classList.add('ok'); }
+    if (txt) txt.textContent = 'API Key Active ✓';
+    if (ind) { ind.textContent = '🔑 API Active ✓'; ind.style.background = 'var(--gn2)'; ind.style.color = 'var(--gn)'; ind.style.borderColor = 'var(--gn3)'; }
+    if (chatStatus) { chatStatus.textContent = '● Online — AI Coach Ready'; chatStatus.style.color = 'var(--gn)'; }
+    if (badge) { badge.textContent = '✓ Active'; badge.style.background = 'var(--gn)'; }
+    if (navItem) navItem.style.borderLeftColor = 'var(--gn)';
+  } else {
+    if (dot) dot.classList.remove('ok');
+    if (txt) txt.textContent = 'Not configured';
+    if (ind) { ind.textContent = '🔑 No Key'; ind.style.background = ''; ind.style.color = ''; ind.style.borderColor = ''; }
+    if (chatStatus) { chatStatus.textContent = '● Waiting for API key'; chatStatus.style.color = ''; }
+    if (badge) { badge.textContent = 'No Key'; badge.style.background = '#555'; }
+    if (navItem) navItem.style.borderLeftColor = '';
+  }
+}
+
+/* ══════════════════════════════════════
+   PAGE NAVIGATION
+══════════════════════════════════════ */
+function showPage(id, navEl) {
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.ln-item').forEach(i => i.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  const titles = { dashboard:'DASHBOARD', body:'BODY GUIDE', exercises:'EXERCISES', workouts:'WORKOUTS', imageanalysis:'IMAGE ANALYSIS', calculators:'CALCULATORS', coach:'AI COACH' };
+  document.getElementById('topbar-title').textContent = titles[id] || id.toUpperCase();
+  window.scrollTo(0, 0);
+  // Check no-key warning for image analysis
+  if (id === 'imageanalysis') {
+    document.getElementById('ia-no-key').style.display = apiKey ? 'none' : 'block';
+  }
+  setTimeout(() => {
+    document.querySelectorAll('#page-' + id + ' .reveal').forEach(el => el.classList.add('vis'));
+  }, 100);
+  // Close mobile nav after selection
+  if (window.innerWidth < 760) closeNav();
+}
+
+/* ══════════════════════════════════════
+   EXERCISE ACCORDION
+══════════════════════════════════════ */
+function toggleEx(card) {
+  const isOpen = card.classList.contains('active');
+  document.querySelectorAll('.ex-card').forEach(c => {
+    c.classList.remove('active');
+    c.querySelector('.ex-body').classList.remove('open');
+    c.querySelector('.ex-arrow').textContent = '▾';
+  });
+  if (!isOpen) {
+    card.classList.add('active');
+    card.querySelector('.ex-body').classList.add('open');
+    card.querySelector('.ex-arrow').textContent = '▴';
+  }
+}
+
+/* ══════════════════════════════════════
+   WORKOUT FILTER
+══════════════════════════════════════ */
+function filterWk(btn, type) {
+  document.querySelectorAll('.wtab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.wk-card').forEach(c => {
+    const show = type === 'all' || c.dataset.t === type;
+    c.style.opacity = show ? '1' : '0.3';
+    c.style.transform = show ? '' : 'scale(0.97)';
+    c.style.pointerEvents = show ? '' : 'none';
+  });
+}
+
+/* ══════════════════════════════════════
+   WATER TRACKER
+══════════════════════════════════════ */
+function tog(i) {
+  const cups = document.querySelectorAll('.wcup');
+  cups[i].classList.toggle('on');
+  cups[i].classList.toggle('off');
+  const count = document.querySelectorAll('.wcup.on').length;
+  document.getElementById('wstat').textContent = count + ' / 8 glasses ' + (count >= 8 ? '🎉' : count >= 6 ? '✓' : '💧');
+}
+
+/* ══════════════════════════════════════
+   BMI CALCULATOR
+══════════════════════════════════════ */
+function calcBMI() {
+  const h = parseFloat(document.getElementById('bmi-h').value);
+  const w = parseFloat(document.getElementById('bmi-w').value);
+  if (!h || !w || h < 100 || w < 30) { alert('Please enter valid height and weight.'); return; }
+  const bmi = (w / ((h / 100) ** 2)).toFixed(1);
+  let cat, col, detail, pct;
+  if (bmi < 18.5) { cat = 'Underweight'; col = '#3498DB'; pct = 8; detail = `BMI ${bmi}: Below healthy range. Increase caloric intake with nutrient-dense foods and strength training. Aim for 3,000+ kcal/day with high protein.`; }
+  else if (bmi < 25) { cat = 'Normal Weight ✓'; col = '#2ECC71'; pct = 35; detail = `BMI ${bmi}: In the healthy range. Focus on body composition — increasing muscle while maintaining healthy body fat is the next goal.`; }
+  else if (bmi < 30) { cat = 'Overweight'; col = '#F39C12'; pct = 65; detail = `BMI ${bmi}: Suggests excess body fat. Aim for 500 kcal/day deficit + 4–5 cardio sessions per week. Strength training preserves muscle.`; }
+  else { cat = 'Obese'; col = '#E74C3C'; pct = 88; detail = `BMI ${bmi}: Indicates obesity. Consult a healthcare professional. Start with low-impact exercise and create a sustainable 400–500 kcal daily deficit.`; }
+  document.getElementById('bmi-val').textContent = bmi;
+  document.getElementById('bmi-cat').textContent = cat;
+  document.getElementById('bmi-val').style.color = col;
+  document.getElementById('bmi-detail').textContent = detail;
+  document.getElementById('bmi-pointer').style.left = pct + '%';
+  document.getElementById('bmi-result').classList.add('show');
+}
+
+/* ══════════════════════════════════════
+   CALORIE CALCULATOR
+══════════════════════════════════════ */
+function calcCalories() {
+  const h = parseFloat(document.getElementById('cal-h').value);
+  const w = parseFloat(document.getElementById('cal-w').value);
+  const age = parseInt(document.getElementById('cal-age').value);
+  const gen = document.getElementById('cal-gen').value;
+  const act = parseFloat(document.getElementById('cal-act').value);
+  const goal = document.getElementById('cal-goal').value;
+  if (!h || !w || !age) { alert('Please fill in all fields.'); return; }
+  let bmr = gen === 'male' ? (10 * w) + (6.25 * h) - (5 * age) + 5 : (10 * w) + (6.25 * h) - (5 * age) - 161;
+  let tdee = Math.round(bmr * act);
+  let target = goal === 'lose' ? tdee - 500 : goal === 'gain' ? tdee + 300 : tdee;
+  let goalLabel = goal === 'lose' ? 'Weight Loss (deficit)' : goal === 'gain' ? 'Muscle Gain (surplus)' : 'Maintenance';
+  const protein = Math.round(w * 2.2);
+  const fat = Math.round(target * 0.25 / 9);
+  const carbs = Math.round((target - protein * 4 - fat * 9) / 4);
+  document.getElementById('cal-val').textContent = target.toLocaleString();
+  document.getElementById('cal-detail').textContent = `BMR: ${Math.round(bmr)} kcal · TDEE: ${tdee} kcal · Goal: ${goalLabel}`;
+  document.getElementById('cal-macros-display').innerHTML = `
+    <div style="background:var(--or4);border:1.5px solid var(--or5);border-radius:8px;padding:.55rem;text-align:center">
+      <div style="font-size:.58rem;font-family:'JetBrains Mono',monospace;color:var(--or);font-weight:700;letter-spacing:.5px;margin-bottom:.12rem">PROTEIN</div>
+      <div style="font-family:'Oswald',sans-serif;font-size:1.25rem;font-weight:700;color:var(--or)">${protein}g</div>
+      <div style="font-size:.58rem;color:var(--tx3)">${protein * 4} kcal</div>
+    </div>
+    <div style="background:var(--bl2);border:1.5px solid var(--bl3);border-radius:8px;padding:.55rem;text-align:center">
+      <div style="font-size:.58rem;font-family:'JetBrains Mono',monospace;color:var(--bl);font-weight:700;letter-spacing:.5px;margin-bottom:.12rem">CARBS</div>
+      <div style="font-family:'Oswald',sans-serif;font-size:1.25rem;font-weight:700;color:var(--bl)">${carbs}g</div>
+      <div style="font-size:.58rem;color:var(--tx3)">${carbs * 4} kcal</div>
+    </div>
+    <div style="background:var(--gn2);border:1.5px solid var(--gn3);border-radius:8px;padding:.55rem;text-align:center">
+      <div style="font-size:.58rem;font-family:'JetBrains Mono',monospace;color:var(--gn);font-weight:700;letter-spacing:.5px;margin-bottom:.12rem">FAT</div>
+      <div style="font-family:'Oswald',sans-serif;font-size:1.25rem;font-weight:700;color:var(--gn)">${fat}g</div>
+      <div style="font-size:.58rem;color:var(--tx3)">${fat * 9} kcal</div>
+    </div>`;
+  document.getElementById('cal-result').classList.add('show');
+}
+
+/* ══════════════════════════════════════
+   IMAGE ANALYSIS
+══════════════════════════════════════ */
+let uploadedImageBase64 = '';
+let uploadedImageType = '';
+
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const result = ev.target.result;
+    uploadedImageBase64 = result.split(',')[1];
+    uploadedImageType = file.type;
+    document.getElementById('previewImg').src = result;
+    document.getElementById('uploadZone').style.display = 'none';
+    document.getElementById('analyzeBtn').classList.add('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    handleImageUpload({ target: { files: [file] } });
+  }
+}
+
+async function runAIAnalysis() {
+  if (!apiKey) {
+    alert('Please save your API key first using the sidebar (left menu → scroll down).');
+    return;
+  }
+  if (!uploadedImageBase64) {
+    alert('Please upload an image first.');
+    return;
+  }
+  document.getElementById('analyzeBtn').classList.remove('show');
+  document.getElementById('iaLoading').classList.add('show');
+  document.getElementById('iaPreview').classList.remove('show');
+  document.getElementById('iaStreamText').textContent = '';
+
+  const prompt = `You are FitMind AI, an expert fitness coach and body composition analyst.
+Analyze this fitness/body image and give a comprehensive assessment including:
+
+**1. Body Type** (Ectomorph/Mesomorph/Endomorph) — explain which and why
+**2. Estimated Body Fat %** — give a range based on visible muscle definition and fat distribution
+**3. Posture Assessment** — check alignment, forward head, shoulder rounding, spinal curvature
+**4. Muscle Development** — highlight strong areas and gaps/imbalances
+**5. Top 4 Personalised Recommendations** — specific training and nutrition advice
+
+Be specific, encouraging, and professional. Use clear section headers.`;
+
+  try {
+    const analysisText = await callAI({
+      messages: [{ role:'user', content: prompt, parts:[{text:prompt}] }],
+      systemPrompt: null,
+      maxTokens: 1024,
+      imageBase64: uploadedImageBase64,
+      imageMime: uploadedImageType || 'image/jpeg'
+    });
+
+    document.getElementById('iaLoading').classList.remove('show');
+    document.getElementById('iaPreview').classList.add('show');
+    const streamEl = document.getElementById('iaStreamText');
+    streamEl.textContent = '';
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < analysisText.length) {
+        streamEl.textContent = analysisText.substring(0, i+3);
+        streamEl.scrollTop = streamEl.scrollHeight;
+        i += 3;
+      } else {
+        streamEl.textContent = analysisText;
+        clearInterval(interval);
+      }
+    }, 10);
+    document.querySelector('.ia-img-overlay').textContent = '✓ AI Analysed';
+
+  } catch (err) {
+    document.getElementById('iaLoading').classList.remove('show');
+    document.getElementById('analyzeBtn').classList.add('show');
+    if (err.type === 'badkey') {
+      apiKey=''; localStorage.removeItem('fitmind-apikey'); updateApiStatus(false);
+      alert('❌ Invalid API key. Please re-enter your key in the sidebar (left menu → scroll down).');
+    } else if (err.type === 'quota') {
+      alert('⚡ Usage limit reached. Try again in a moment, or switch to a different provider.');
+    } else if (err.type === 'network') {
+      alert('🌐 ' + (err.msg||'Network error. Check your internet connection.'));
+    } else {
+      alert('⚠️ ' + (err.msg || err.message || 'Unknown error. Please try again.'));
+    }
+    console.error('Image analysis error:', err);
+  }
+}
+
+/* ══════════════════════════════════════
+   HELPERS
+══════════════════════════════════════ */
+function escapeHtml(txt) {
+  return txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function simpleMarkdown(txt) {
+  return txt
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
+}
+function streamText(el, text, box, speed=10) {
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i < text.length) { el.innerHTML = simpleMarkdown(text.substring(0,i+4)); if(box) box.scrollTop=99999; i+=4; }
+    else { el.innerHTML = simpleMarkdown(text); clearInterval(iv); if(box) box.scrollTop=99999; }
+  }, speed);
+}
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+/* ══════════════════════════════════════
+   UNIVERSAL AI CALLER
+   Works with Gemini, OpenAI, Claude, Custom
+══════════════════════════════════════ */
+const GEMINI_MODELS = ['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-flash-8b'];
+
+async function callAI({ messages, systemPrompt, maxTokens=512, imageBase64=null, imageMime=null }) {
+  const provider = apiProvider || 'gemini';
+
+  if (provider === 'gemini') {
+    return await callGemini({ messages, systemPrompt, maxTokens, imageBase64, imageMime });
+  } else if (provider === 'openai') {
+    return await callOpenAI({ messages, systemPrompt, maxTokens });
+  } else if (provider === 'claude') {
+    return await callClaude({ messages, systemPrompt, maxTokens });
+  } else {
+    return await callCustom({ messages, systemPrompt, maxTokens });
+  }
+}
+
+/* ── GEMINI ─────────────────────────── */
+async function callGemini({ messages, systemPrompt, maxTokens, imageBase64, imageMime }) {
+  let lastErr = null;
+  for (const model of GEMINI_MODELS) {
+    try {
+      // Convert messages to Gemini format
+      let contents;
+      if (imageBase64) {
+        contents = [{ parts: [
+          { inline_data: { mime_type: imageMime||'image/jpeg', data: imageBase64 } },
+          { text: messages[messages.length-1]?.parts?.[0]?.text || messages[messages.length-1]?.content || '' }
+        ]}];
+      } else {
+        contents = messages.map(m => ({
+          role: m.role === 'assistant' ? 'model' : m.role,
+          parts: m.parts || [{ text: m.content || '' }]
+        }));
+      }
+
+      const body = { contents, generationConfig: { temperature: imageBase64?0.7:0.8, maxOutputTokens: maxTokens } };
+      if (systemPrompt) body.system_instruction = { parts: [{ text: systemPrompt }] };
+
+      let res, data;
+      try {
+        res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) }
+        );
+      } catch(e) {
+        lastErr = { type:'network', msg:'Network error. Check your internet connection.' }; continue;
+      }
+
+      try { data = await res.json(); } catch(_) { data={}; }
+
+      if (!res.ok) {
+        const status = res.status;
+        const msg = (data.error?.message||'').toLowerCase();
+        if (status===429||msg.includes('quota')||msg.includes('rate')||msg.includes('resource_exhausted')) {
+          lastErr={type:'quota',msg:'Usage limit reached.'}; await sleep(500); continue;
+        }
+        if (status===401||msg.includes('api key not valid')||msg.includes('invalid api key')||msg.includes('api_key_invalid')) {
+          throw {type:'badkey',msg:'Invalid API key. Please check your key in the banner.'};
+        }
+        if (status===404) { lastErr={type:'other',msg:`Model ${model} unavailable.`}; continue; }
+        lastErr={type:'other',msg:data.error?.message||`Error ${status}`}; continue;
+      }
+
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) { lastErr={type:'other',msg:'Empty response. Try rephrasing.'}; continue; }
+      return text;
+    } catch(e) {
+      if (e.type==='badkey') throw e;
+      lastErr=e;
+    }
+  }
+  throw lastErr || {type:'quota',msg:'All models reached usage limit.'};
+}
+
+/* ── OPENAI ─────────────────────────── */
+async function callOpenAI({ messages, systemPrompt, maxTokens }) {
+  const msgs = [];
+  if (systemPrompt) msgs.push({ role:'system', content: systemPrompt });
+  msgs.push(...messages.map(m => ({ role: m.role==='model'?'assistant':m.role, content: m.content || m.parts?.[0]?.text || '' })));
+
+  let res, data;
+  try {
+    res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${apiKey}` },
+      body: JSON.stringify({ model:'gpt-4o-mini', messages: msgs, max_tokens: maxTokens, temperature: 0.8 })
+    });
+  } catch(e) { throw {type:'network',msg:'Network error. Check your connection.'}; }
+
+  try { data = await res.json(); } catch(_) { data={}; }
+
+  if (!res.ok) {
+    const msg = (data.error?.message||'').toLowerCase();
+    if (res.status===401||msg.includes('invalid api key')||msg.includes('incorrect api key')) {
+      throw {type:'badkey',msg:'Invalid OpenAI API key. Check your key in the banner.'};
+    }
+    if (res.status===429||msg.includes('rate limit')||msg.includes('quota')) {
+      throw {type:'quota',msg:'OpenAI rate limit reached. Try again in a moment.'};
+    }
+    throw {type:'other',msg:data.error?.message||`Error ${res.status}`};
+  }
+  return data.choices?.[0]?.message?.content || 'No response received.';
+}
+
+/* ── CLAUDE ─────────────────────────── */
+async function callClaude({ messages, systemPrompt, maxTokens }) {
+  const msgs = messages.map(m => ({
+    role: m.role==='model'?'assistant':m.role,
+    content: m.content || m.parts?.[0]?.text || ''
+  })).filter(m => m.role==='user'||m.role==='assistant');
+
+  let res, data;
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens: maxTokens,
+        system: systemPrompt || '',
+        messages: msgs
+      })
+    });
+  } catch(e) { throw {type:'network',msg:'Network error. Check your connection.'}; }
+
+  try { data = await res.json(); } catch(_) { data={}; }
+
+  if (!res.ok) {
+    const msg = (data.error?.message||'').toLowerCase();
+    if (res.status===401||msg.includes('invalid')||msg.includes('authentication')) {
+      throw {type:'badkey',msg:'Invalid Claude API key. Check your key in the banner.'};
+    }
+    if (res.status===429||msg.includes('rate')||msg.includes('overloaded')) {
+      throw {type:'quota',msg:'Claude is busy. Try again in a moment.'};
+    }
+    throw {type:'other',msg:data.error?.message||`Error ${res.status}`};
+  }
+  return data.content?.[0]?.text || 'No response received.';
+}
+
+/* ── CUSTOM ENDPOINT ────────────────── */
+async function callCustom({ messages, systemPrompt, maxTokens }) {
+  // Re-read from inputs in case values were typed but not saved yet
+  const epInput = document.getElementById('customEndpointInput');
+  const mdInput = document.getElementById('customModelInput');
+  if (epInput && epInput.value.trim()) customEndpoint = epInput.value.trim();
+  if (mdInput && mdInput.value.trim()) customModel = mdInput.value.trim();
+
+  if (!customEndpoint) throw {type:'badkey', msg:'Please enter your API endpoint URL in the sidebar custom fields.'};
+
+  // Validate URL format
+  try { new URL(customEndpoint); } catch(_) {
+    throw {type:'badkey', msg:'Invalid endpoint URL — it must start with https://'};
+  }
+
+  const msgs = [];
+  if (systemPrompt) msgs.push({role:'system', content:systemPrompt});
+  msgs.push(...messages.map(m=>({role:m.role==='model'?'assistant':m.role, content:m.content||m.parts?.[0]?.text||''})));
+
+  let res, data;
+  try {
+    res = await fetch(customEndpoint, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body: JSON.stringify({ model: customModel||'gpt-4o-mini', messages: msgs, max_tokens: maxTokens, temperature: 0.8 })
+    });
+  } catch(e) {
+    const reason = e?.message || '';
+    if (reason.toLowerCase().includes('cors') || reason.toLowerCase().includes('failed to fetch') || reason.toLowerCase().includes('networkerror')) {
+      throw {type:'network', msg:`CORS or network error reaching: ${customEndpoint} — make sure the server allows browser requests.`};
+    }
+    throw {type:'network', msg:`Cannot reach endpoint: ${customEndpoint}. Verify the URL is correct and the server is running.`};
+  }
+
+  try { data = await res.json(); } catch(_) { data={}; }
+
+  if (!res.ok) {
+    const errMsg = data.error?.message || data.message || `HTTP ${res.status}`;
+    if (res.status===401||res.status===403) throw {type:'badkey', msg:`Authentication failed (${res.status}): ${errMsg}`};
+    if (res.status===429) throw {type:'quota', msg:`Rate limited (429): ${errMsg}`};
+    throw {type:'other', msg:`Endpoint returned error ${res.status}: ${errMsg}`};
+  }
+
+  return data.choices?.[0]?.message?.content || data.content?.[0]?.text || JSON.stringify(data);
+}
+
+/* ══════════════════════════════════════
+   OFFLINE FALLBACK COACH
+   Smart keyword-matched answers used when
+   all AI models are at usage limit
+══════════════════════════════════════ */
+const OFFLINE_COACH = [
+  { k:['push','chest','pec'], r:'For push-ups: keep your core tight, elbows at 45°, and lower slowly. Aim for 3×12–15 reps. Squeeze chest at the top of each rep for maximum activation. 💪' },
+  { k:['squat','leg','quad','glute'], r:'For squats: feet shoulder-width apart, toes slightly out, and sit back like you\'re sitting on a chair. Keep your chest proud and drive through your heels on the way up. 🦵' },
+  { k:['deadlift','back','hinge'], r:'Deadlift tip: set your back before you pull — neutral spine, lats engaged. Think "push the floor away" rather than "lift the bar." Start light and perfect your form first. 🏋️' },
+  { k:['cardio','run','hiit','fat','weight loss','lose'], r:'For fat loss, combine 3 strength sessions + 2 HIIT sessions per week. HIIT keeps your metabolism elevated for up to 24 hours post-workout. Aim for a 300–500 kcal daily deficit through diet. 🔥' },
+  { k:['protein','eat','diet','nutrition','food','meal'], r:'Post-workout nutrition: consume 20–40g protein within 30 minutes. Good sources: whey shake, chicken breast, Greek yogurt, or eggs. Pair with fast carbs like a banana to replenish glycogen. 🍗' },
+  { k:['sleep','recover','rest'], r:'Recovery is where muscle grows! Aim for 7–9 hours of quality sleep. Your body releases 70% of its growth hormone during deep sleep. Poor sleep can reduce strength by up to 20%. 😴' },
+  { k:['core','abs','plank','crunch'], r:'Best core exercises: plank (hold 30–60 sec), dead bug, and hanging knee raises. Train core 3–4× per week. A strong core improves EVERY other lift and prevents lower back injury. 🧘' },
+  { k:['shoulder','press','overhead'], r:'For shoulder health: always warm up rotator cuffs before pressing. Perform face pulls daily. Keep elbows slightly in front of the bar during overhead press to protect the AC joint. 💪' },
+  { k:['warm','stretch','mobility'], r:'Warm up for 5–10 minutes before training: dynamic stretches, leg swings, arm circles. Save static stretching for after your session. Cold muscles tear — always warm up! 🏃' },
+  { k:['supplement','creatine','protein powder','pre-workout'], r:'Best supplements for results: creatine monohydrate (5g/day), whey protein (post-workout), and vitamin D3. Creatine is the most researched supplement — increases strength by 5–15% in most people. 💊' },
+  { k:['bmi','weight','overweight','obese'], r:'BMI is a starting point but not the full picture — it doesn\'t measure body composition. Use the BMI calculator in our Calculators section, then focus on body fat % and strength improvements. 📊' },
+  { k:['beginner','start','new','first'], r:'Starting out? Focus on compound lifts: squat, deadlift, bench press, row, and overhead press. Do 3 full-body sessions per week. Consistency for 3 months beats any "perfect" program. Start simple! 🚀' },
+  { k:['water','hydrat'], r:'Hydration is critical! Drink at least 500ml water before training, and sip during. Even 2% dehydration reduces performance by up to 20%. Aim for 35ml per kg of body weight daily. 💧' },
+  { k:['motivation','tired','give up','hard'], r:'Every champion was once a beginner who didn\'t quit. Your 21-day streak shows incredible commitment — you\'re already in the top 5% of users! One session at a time. The hardest part is starting. 🏆' },
+];
+
+function getOfflineReply(question) {
+  const q = question.toLowerCase();
+  for (const entry of OFFLINE_COACH) {
+    if (entry.k.some(kw => q.includes(kw))) return entry.r;
+  }
+  return 'Great question! 💪 The AI is temporarily at its usage limit right now. Your FitMind offline coach says: stay consistent, train hard, eat clean, and sleep well — that\'s 90% of fitness success. Click Retry in a moment to reconnect! 🔥';
+}
+
+/* ══════════════════════════════════════
+   AI COACH CHAT
+══════════════════════════════════════ */
+const SYSTEM_PROMPT = `You are FitMind AI Coach, an expert personal fitness trainer and nutritionist.
+You have deep knowledge of strength training, hypertrophy, cardio, sports nutrition, recovery, and exercise form.
+Keep responses concise (2–4 sentences unless more is needed). Be encouraging and specific. Use occasional fitness emojis.
+Always prioritize safety and evidence-based advice.`;
+
+let lastUserMsg = '';
+
+async function sendMsg() {
+  const inp = document.getElementById('cin');
+  const txt = inp.value.trim();
+  if (!txt) return;
+
+  lastUserMsg = txt;
+  const box = document.getElementById('cmsgs');
+  const t = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+  box.innerHTML += `<div class="cmsg usr"><div class="cmsg-b">${escapeHtml(txt)}</div><div class="cmsg-t">${t}</div></div>`;
+  inp.value = '';
+  box.scrollTop = 99999;
+  chatHistory.push({ role:'user', content: txt, parts:[{ text: txt }] });
+
+  if (!apiKey) {
+    setTimeout(() => {
+      box.innerHTML += `<div class="cmsg bot"><div class="cmsg-b">🔑 Add your API key in the sidebar (scroll down in the left menu) to enable full AI coaching. 💪</div><div class="cmsg-t">${t}</div></div>`;
+      box.scrollTop = 99999;
+    }, 400);
+    return;
+  }
+
+  // Typing indicator
+  const typingId = 'typing_' + Date.now();
+  box.innerHTML += `<div class="cmsg bot" id="${typingId}"><div class="cmsg-b"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  box.scrollTop = 99999;
+
+  try {
+    const replyText = await callAI({
+      messages: chatHistory.slice(-12),
+      systemPrompt: SYSTEM_PROMPT,
+      maxTokens: 512
+    });
+
+    document.getElementById(typingId)?.remove();
+    chatHistory.push({ role:'model', content: replyText, parts:[{ text: replyText }] });
+
+    const msgId = 'msg_' + Date.now();
+    box.innerHTML += `<div class="cmsg bot" id="${msgId}"><div class="cmsg-b" id="${msgId}_text"></div><div class="cmsg-t">${t}</div></div>`;
+    streamText(document.getElementById(`${msgId}_text`), replyText, box);
+
+  } catch(err) {
+    document.getElementById(typingId)?.remove();
+
+    if (err.type === 'badkey') {
+      apiKey = '';
+      localStorage.removeItem('fitmind-apikey');
+      updateApiStatus(false);
+      box.innerHTML += `<div class="cmsg bot"><div class="cmsg-b" style="border-color:#E74C3C">
+        ❌ <strong>Invalid API Key.</strong> Your key was not accepted.<br><br>
+        Please re-enter your API key in the sidebar (left menu → scroll down).
+      </div><div class="cmsg-t">${t}</div></div>`;
+
+    } else if (err.type === 'quota') {
+      // All models quota-exceeded → use smart offline fallback
+      const offlineReply = getOfflineReply(txt);
+      const msgId = 'msg_' + Date.now();
+      box.innerHTML += `<div class="cmsg bot" id="${msgId}">
+        <div class="cmsg-b">
+          <div style="font-size:.65rem;font-family:'JetBrains Mono',monospace;color:var(--or);margin-bottom:.4rem;font-weight:700">⚡ OFFLINE COACH (API limit reached)</div>
+          <span id="${msgId}_text"></span>
+          <div style="margin-top:.7rem;display:flex;gap:.5rem;flex-wrap:wrap">
+            <button onclick="retryLastMsg()" style="background:var(--or);color:#fff;border:none;border-radius:6px;padding:.35rem .8rem;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">🔄 Retry</button>
+          </div>
+        </div>
+        <div class="cmsg-t">${t} · offline mode</div>
+      </div>`;
+      streamText(document.getElementById(`${msgId}_text`), offlineReply, box);
+
+    } else {
+      box.innerHTML += `<div class="cmsg bot"><div class="cmsg-b" style="border-color:#E74C3C">⚠️ ${escapeHtml(err.msg || 'Unknown error. Please try again.')}</div><div class="cmsg-t">${t}</div></div>`;
+    }
+    box.scrollTop = 99999;
+    console.error('Chat error:', err);
+  }
+}
+
+async function retryLastMsg() {
+  if (!lastUserMsg) return;
+  document.getElementById('cin').value = lastUserMsg;
+  sendMsg();
+}
+
+function handleKey(e) { if (e.key === 'Enter') sendMsg(); }
+
+function clearChat() {
+  chatHistory = [];
+  lastUserMsg = '';
+  document.getElementById('cmsgs').innerHTML = `<div class="cmsg bot"><div class="cmsg-b">Chat cleared! 🔄 Ask me anything about fitness, nutrition, or training.</div><div class="cmsg-t">Now</div></div>`;
+}
+
+/* ══════════════════════════════════════
+   IMAGE ANALYSIS — MULTI-MODEL FALLBACK
+══════════════════════════════════════ */
+async function runAIAnalysis() {
+  if (!apiKey) {
+    alert('Please save your API key first using the sidebar (left menu → scroll down).');
+    return;
+  }
+  if (!uploadedImageBase64) { alert('Please upload an image first.'); return; }
+
+  document.getElementById('analyzeBtn').classList.remove('show');
+  document.getElementById('iaLoading').classList.add('show');
+  document.getElementById('iaPreview').classList.remove('show');
+  document.getElementById('iaStreamText').textContent = '';
+
+  const prompt = `You are FitMind AI, an expert fitness coach and body composition analyst.
+Analyse this fitness/body image comprehensively:
+
+**1. Body Type** — Ectomorph/Mesomorph/Endomorph with explanation
+**2. Estimated Body Fat %** — visual range estimate with reasoning
+**3. Posture Assessment** — alignment, forward head, shoulder position, spinal curve
+**4. Muscle Development** — strong areas and imbalances observed
+**5. Top 4 Personalised Recommendations** — specific training and nutrition actions
+
+Be encouraging, specific, and professional.`;
+
+  const contents = [{
+    parts: [
+      { inline_data: { mime_type: uploadedImageType||'image/jpeg', data: uploadedImageBase64 } },
+      { text: prompt }
+    ]
+  }];
+
+  // Image analysis models (vision capable)
+  const visionModels = ['gemini-2.0-flash','gemini-1.5-flash'];
+  let analysisText = null;
+  let usedModel = null;
+  let lastErr = null;
+
+  for (const model of visionModels) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ contents, generationConfig:{ temperature:0.7, maxOutputTokens:1024 } }) }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        const code = data.error?.code || res.status;
+        const msg  = data.error?.message || '';
+        if (code===429 || msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('rate')) {
+          lastErr = { type:'quota', msg }; await sleep(500); continue;
+        }
+        if (code===400 || code===401) throw { type:'badkey', msg: data.error?.message };
+        throw { type:'other', msg: data.error?.message||`Error ${res.status}` };
+      }
+      analysisText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      usedModel = model;
+      break;
+    } catch(e) {
+      if (e.type==='badkey') { lastErr=e; break; }
+      lastErr = e;
+    }
+  }
+
+  document.getElementById('iaLoading').classList.remove('show');
+
+  if (analysisText) {
+    document.getElementById('iaPreview').classList.add('show');
+    const streamEl = document.getElementById('iaStreamText');
+    streamEl.textContent = '';
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i < analysisText.length) { streamEl.textContent = analysisText.substring(0,i+3); streamEl.scrollTop=streamEl.scrollHeight; i+=3; }
+      else { streamEl.textContent = analysisText; clearInterval(iv); }
+    }, 8);
+    document.querySelector('.ia-img-overlay').textContent = '✓ AI Analysed';
+
+  } else if (lastErr?.type === 'badkey') {
+    apiKey=''; localStorage.removeItem('fitmind-apikey'); updateApiStatus(false);
+    document.getElementById('analyzeBtn').classList.add('show');
+    alert('❌ Invalid API Key. Please re-enter your key in the sidebar (left menu → scroll down).');
+
+  } else {
+    // Quota exceeded for all vision models
+    document.getElementById('iaPreview').classList.add('show');
+    document.getElementById('iaStreamText').innerHTML = `
+      <div style="color:var(--or);font-weight:700;margin-bottom:.6rem">⚡ AI usage limit reached for image analysis</div>
+      <p style="color:var(--tx2);font-size:.82rem;line-height:1.65">All available AI models have hit their usage limit. Please wait a moment and try again.</p>
+      <p style="color:var(--tx2);font-size:.82rem;line-height:1.9;margin-top:.5rem"><strong>Options:</strong></p>
+      <ol style="color:var(--tx2);font-size:.82rem;line-height:1.9;padding-left:1.2rem;margin-top:.3rem">
+        <li>Wait <strong>1 minute</strong> then click Analyse again</li>
+        <li>Try a <strong>different API key</strong></li>
+        <li>Upgrade to a <strong>paid API tier</strong> for higher limits</li>
+      </ol>
+      <button onclick="retryAnalysis()" style="margin-top:.9rem;background:var(--or);color:#fff;border:none;border-radius:8px;padding:.55rem 1.2rem;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">🔄 Retry Analysis</button>`;
+    document.querySelector('.ia-img-overlay').textContent = '⚡ Limit reached';
+  }
+}
+
+function retryAnalysis() {
+  document.getElementById('iaPreview').classList.remove('show');
+  document.getElementById('analyzeBtn').classList.add('show');
+}
+
+// Scroll reveal
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+</script>
+</body>
+</html>
